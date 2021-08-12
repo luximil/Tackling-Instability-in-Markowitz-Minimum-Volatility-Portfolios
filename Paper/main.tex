@@ -1,0 +1,185 @@
+\documentclass[a4paper,11pt,abstracton,twoside,titlepage,openany,nochapterprefix,noappendixprefix,liststotoc,bibtotoc,normalheadings,pointlessnumbers,BCOR1cm]{article}
+
+\usepackage{graphicx}
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{longtable}
+\usepackage{fancyhdr}
+\usepackage{color}
+\usepackage{url}
+\usepackage{enumitem}
+\bibliographystyle{plain}
+\selectlanguage{english}
+\usepackage{setspace}
+
+% My imports
+\usepackage{hyperref}
+\usepackage{todonotes}
+\usepackage{amsthm}
+\usepackage[export]{adjustbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+%
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+\theoremstyle{remark}
+\newtheorem*{remark}{Remark}
+\theoremstyle{theorem}
+\newtheorem{theorem}{Theorem}[section]
+%\newtheorem{corollary}{Corollary}[theorem]
+%\newtheorem{lemma}[theorem]{Lemma}
+%
+
+\topmargin  0.0cm
+\headheight 0.0cm
+
+\textwidth 15cm
+\textheight 22cm
+
+\oddsidemargin 0in
+\evensidemargin 0in
+
+\renewcommand{\headheight}{0.7in}
+\renewcommand{\headrulewidth}{0.0pt}
+\setlength{\headwidth}{\textwidth}
+
+\begin{document}
+
+\begin{titlepage}
+\thispagestyle{fancy}
+
+\rhead{
+	\includegraphics[height=0.6in]{bilder/tu-logo_2d_rot.eps}
+}
+\chead{}
+%\rhead{
+%	\includegraphics[height=0.6in]{bilder/INET-Logo.red.eps}
+%}
+\lfoot{}
+\cfoot{}
+\rfoot{}
+
+
+%%%%%
+%%  This defines the coverpage - change the fields to your personal liking
+%%%%%
+
+\begin{Large}
+\vspace{5em}
+\center
+	\mbox{}\\
+	\vspace{5em}
+%	Insert or uncomment the type of your work here
+%	Diplomarbeit
+%	Master-thesis
+	Bachelor-thesis
+	\vspace{3em}
+
+	\begin{Huge}
+	Tackling Instability in Markowitz's Minimum Volatility Portfolios
+	\end{Huge}
+	
+	\mbox{}\\
+	\vspace{5em}
+	Faculty II - Mathematics and Natural Sciences\\
+%	Intelligent Networks / Intelligente Netze (INET)\\
+%	Research Group of Prof. Anja Feldmann, Ph.D.\\
+	\vspace{3em}
+	Francisco Jose Manjon Cabeza Garcia\\
+	\today\\
+
+	\vspace{4 em}
+	Prüfer: Prof. Dr. Jörg Liesen\\
+	\vspace{-.5 ex}
+	%Betreuer: Your Supervisor\\
+\end{Large}
+\end{titlepage}
+\pagestyle{empty}
+
+%%%%%
+%%  End cover page
+%%%%%
+
+\mbox{}
+\newpage
+
+\oddsidemargin 0.5in
+\evensidemargin 0in
+
+\vspace*{40em}
+\begin{center}
+\begin{minipage}{11cm}
+\mdseries{
+\begin{normalsize}
+\sffamily
+Die selbständige und eigenhändige Anfertigung versichere ich an Eides Statt. 
+
+\vspace*{2em}
+Berlin, den \today 
+\vspace*{4em}
+%%%%%
+%%  Put your own name here !
+%%%%%
+\begin{small}Francisco Jose Manjon Cabeza Garcia\end{small}
+\end{normalsize}
+}
+\end{minipage}
+\end{center}
+
+\mbox{}
+\newpage
+
+\topmargin -2.0cm
+\textheight 24cm
+\textwidth 13cm
+
+\mbox{}
+\newpage
+
+\mbox{}
+\section*{Zusammenfassung}
+\input{section/abstract-de.tex}
+\newpage
+
+\mbox{}
+\newpage
+
+\mbox{}
+\section*{Abstract}
+\input{section/abstract.tex}
+\newpage
+
+\mbox{}
+\newpage
+
+\setcounter{page}{1}
+\tableofcontents
+
+\newpage
+
+\pagestyle{plain}
+\section{Introduction}
+\input{section/introduction.tex}
+\newpage
+
+\section{Markowitz's Optimal Portfolio}
+\input{section/markowitzoptimalportfolio.tex}
+\newpage
+
+\section{Improving Markowitz's Portfolio Model}
+\input{section/improvingmarkowitzportfoliomodel.tex}
+\newpage
+
+\section{Conclusion}
+\input{section/conclusion.tex}
+\newpage
+
+\newpage
+\pagestyle{empty}
+\bibliography{main}
+
+%\newpage
+%\mbox{}
+%\cleardoublepage
+\end{document}
