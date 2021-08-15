@@ -18,46 +18,42 @@ class MarkowitzMinimumVolatilityInstabilityAnalyses(QCAlgorithm):
         
         # Optimisation model for the portfolio construction.
         # Options: "Equal Weight", "Inverse Variance", "Markowitz Minimum Volatility", "Hierarchical Risk Parity"
-        self.optimisationModel = "Hierarchical Risk Parity"
+        self.optimisationModel = "Equal Weight"
         # Constrain portfolio construction to long-only portfolios.
         # Note: this parameter is ignored if the optimisation model is Markowitz Minimum Volatility.
         self.longOnlyBias = False
         # Normalise the allocation vectors computed so that the weights in the portfolio sum up to 1.
         NormaliseAllocationVector = True
         # Number of past months' data to consider for the portfolio construction.
-        LookbackPeriods = 12
+        LookbackPeriods = 24
         # New York time of the first day in the month at which the portfolio is rebalanced.
         RebalancingTime = "10:00"
         # List with the assets to consider in the portfolio.
         SelectedAssets = [
                     # Equity ETFs
-                    "IXN",      # iShares Global Tech ETF
-                    "IXJ",      # iShares Global Healthcare ETF
+                    "EXI",      # iShares Global Industrials ETF
+                    "FILL",     # iShares MSCI Global Energy Producers ETF
                     "IGF",      # iShares Global Infrastructure ETF
                     "IXG",      # iShares Global Financials ETF
-                    #"IXC",      # iShares Global Energy ETF
-                    #"PICK",     # iShares MSCI Global Metals & Mining Producers ETF
-                    "MXI",      # iShares Global Materials ETF
-                    "KXI",      # iShares Global Consumer Staples ETF
-                    "RXI",      # iShares Global Consumer Discretionary ETF
-                    "EXI",      # iShares Global Industrials ETF
+                    "IXJ",      # iShares Global Healthcare ETF
+                    "IXN",      # iShares Global Tech ETF
                     "IXP",      # iShares Global Comm Services ETF
-                    #"WOOD",     # iShares Global Timber & Forestry ETF
                     "JXI",      # iShares Global Utilities ETF
-                    #"VEGI",     # iShares MSCI Global Agriculture Producers ETF
-                    "FILL",     # iShares MSCI Global Energy Producers ETF
+                    "KXI",      # iShares Global Consumer Staples ETF
+                    "MXI",      # iShares Global Materials ETF
+                    "RXI",      # iShares Global Consumer Discretionary ETF
                     # Fixed Income ETFs
-                    "ISTB",     # iShares Core 1-5 Year USD Bond ETF
-                    "IMTB",     # iShares Core 5-10 Year USD Bond ETF
+                    "IAGG",     # iShares Core International Aggregate Bond ETF
                     "ILTB",     # iShares Core 10+ Year USD Bond ETF
-                    "IAGG",     # iShares Core International Aggregate Bond ETF 
+                    "IMTB",     # iShares Core 5-10 Year USD Bond ETF
+                    "ISTB",     # iShares Core 1-5 Year USD Bond ETF
                     # Real Estate
                     "REET",     # iShares Global REIT ETF
                     # Commodities
-                    "JJE",      # iPath Series B Bloomberg Energy Subindex Total Return ETN
-                    "JJM",      # iPath Series B Bloomberg Industrial Metals Subindex Total Return ETN
-                    "JJP",      # iPath Series B Bloomberg Precious Metals Subindex Total Return ETN
-                    "JJA"       # iPath Series B Bloomberg Agriculture Subindex Total Return ETN
+                    "DBA",      # Invesco DB Agriculture Fund
+                    "DBB",      # Invesco DB Base Metals Fund
+                    "DBE",      # Invesco DB Energy Fund
+                    "DBP"       # Invesco DB Precious Metals Fund
                     ]
         # ------------------------
         # End of Input Parameters.

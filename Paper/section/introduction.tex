@@ -1,15 +1,179 @@
 % - Why is asset allocation important? Short description of the asset allocation optimisation problem.
 % - Short history of Markowitz's Modern Portfolio Theory.
 
-Because no investor has unlimited capital to invest, all of them are faced with the same challenge: how to allocate the limited resources that they have across the set of investable assets available. Moreover, this task gets more complicated when investors have to take into account their risk appetite and their target return. We can then define the asset allocation problem as an optimisation problem with 2 variants:
+How to allocate the limited resources across the set of investable assets available. This is the challenge all investors are faced with, because no investor has unlimited capital available to invest. This task gets more complicated when investors have to take into account their risk appetite and their target return. This asset allocation problem can be defined as an optimisation problem with 2 variations:
 \begin{enumerate}
     \item Maximise returns while maintaining risk within a given risk tolerance level, or
     \item Minimise risk for a given level of target return.
 \end{enumerate}
 
-Harry M. Markowitz was the first to develop and present a systematic approach to this asset allocation problem, in both variants, in 1952, earning him a Nobel Memorial Prize in Economic Sciences in 1990. Markowitz's portfolio construction model laid the ground for quantitative asset allocation models. Many asset allocation models are developed using Markowitz's model and adjusting it to account for modern investors' needs by for example using other risk measures or more specific target functions other than expected returns or their standard deviation.
+Harry M. Markowitz was the first to develop and present a systematic approach to this asset allocation problem in both variations in 1952, by defining risk as the standard deviation of past returns and returns as the expected value of past returns. His work earned him a Nobel Memorial Prize in Economic Sciences in 1990. Markowitz's portfolio construction model laid the ground for quantitative asset allocation models. Many asset allocation models today are developed using Markowitz's model and adjusting it to account for modern investors' needs. For example, by using risk measures other than the standard deviation of past returns, or by targeting functions other than expected returns.
 
-The main critique point of Markowitz's portfolio construction model is the lack of stability that leads to concentrated portfolios when correlations rise and to a high portfolio turn-over. In this paper, we analyse Markowitz's portfolio construction model and the causes of low stability. Moreover, we present some techniques that try to improve portfolio stability: 1 regarding parameter estimation for Markowitz's model and 3 alternative allocation methods.
+The main critique point of Markowitz's portfolio construction model is the lack of stability that leads to a high portfolio turn-over and to concentrated portfolios, specially when correlations rise. In this paper, we analyse Markowitz's portfolio construction model and the causes of low stability by focusing on the minimum volatility portfolio. Moreover, we present some techniques that try to improve the stability of minimum volatility portfolios: 1 regarding parameter estimation for Markowitz's model and 1 alternative allocation method. Moreover, we also compare Markowitz's minimum volatility portfolios to 2 naive allocation methods: equal weight and inverse variance allocation.
 
 \subsection{Practical Implementation Framework}
+    % for example, the time period of the backtest, the rebalancing frequency, the data resolution, transaction costs, etc.
     
+    To show the problems of Markowitz's minimum volatility portfolios in real applications, and compare these portfolios to the portfolios computed using the other methods and techniques, each of the techniques described in this paper is implemented for a portfolio of exchange traded products (ETPs) representing 4 assets classes: equities, fixed income, real estate and commodities. We use QuantConnect's \cite{qcwebsite} platform for the implementation and as the data source. This platform and its API allow us to perform backtests with 1-minute resolution data.
+    
+    \subsubsection{Assets}
+        Due to the lack of Euro denominated ETP data in the QuantConnect data bank, we decided to use US dollar denominated ETPs which are intended for US based traders. For the selection of ETPs, we use iShares website \cite{isharesscreener}, because it provides a screener of its ETPs\footnote{Disclosure: the author of this paper is not associated with iShares, BlackRock or any of its companies.}.
+        
+        For the equity ETPs, we selected equity index exchange traded funds (ETFs) with regional category "Global" by sectors and industries. From all of the ETPs fulfilling those conditions shown in the online screener, we chose the following ETFs (alphabetically ordered by ticker):
+        % Equity alphabetically sorted.
+        \begin{itemize}
+            \item iShares Global Industrials ETF with ticker "EXI" which seeks to track the investment results of an index composed of global equities in the industrials sector. More specifically, the index tracked is the S{\&}P Global 1200 Industrials Sector Index (TM). The top sub-sectors represented in the ETF holdings are capital goods, transportation and commercial and professional services \cite{factsheet_exi}.
+            \item iShares MSCI Global Energy Producers ETF with ticker "FILL" which seeks to track the investment results of an index composed of global equities of companies primarily engaged in the business of energy exploration and production. More specifically, the index tracked is the MSCI ACWI Select Energy Producers Investable Market Index. The top sub-sectors represented in the ETF holdings are integrated oil and gas, oil and gas exploration and production, oil and gas refining and marketing and transportation, coal and consumable fuels and oil and gas drilling \cite{factsheet_fill}.
+            \item iShares Global Infrastructure ETF with ticker "IGF" which seeks to track the investment results of an index composed of developed market equities in the infrastructure industry. More specifically, the index tracked is the S{\&}P Global Infrastructure Index. The top sub-sectors represented in the ETF holdings are utilities, transportation and energy \cite{factsheet_igf}.
+            \item iShares Global Financials ETF with ticker "IXG" which seeks to track the investment results of an index composed of global equities in the financials sector. More specifically, the index tracked is the S{\&}P Global 1200 Financials Sector Index (TM). The top sub-sectors represented in the ETF holdings are banks, diversified financials and insurance \cite{factsheet_ixg}.
+            \item iShares Global Healthcare ETF with ticker "IXJ" which seeks to track the investment results of an index composed of global equities in the healthcare sector. More specifically, the index tracked is the S{\&}P Global 1200 Healthcare Sector Index (TM). The top sub-sectors represented in the ETF holdings are pharmaceuticals, biotech and life sciences and health care equipment and services \cite{factsheet_ixj}.
+            \item iShares Global Tech ETF with ticker "IXN" which seeks to track the investment results of an index composed of global equities in the technology sector. More specifically, the index tracked is the S{\&}P Global 1200 Information Technology Sector Index (TM). The top sub-sectors represented in the ETF holdings are software and services, tech hardware and equipment, semiconductors and semiconductor equipment \cite{factsheet_ixn}.
+            \item iShares Global Comm Services ETF with ticker "IXP" which seeks to track the investment results of an index composed of global equities in the communication services sector. More specifically, the index tracked is the S{\&}P Global 1200 Communication Services 4.5/22.5/45 Capped Index. The top sub-sectors represented in the ETF holdings are interactive media and services, integrated telecommunication services, movies and entertainment, cable and satellite and wireless telecommunication services \cite{factsheet_ixp}.
+            \item iShares Global Utilities ETF with ticker "JXI" which seeks to track the investment results of an index composed of global equities in the utilities sector. More specificaly, the index tracked is the S{\&}P Global 1200 Utilities (Sector) Capped Index. The top sub-sectors represented in the ETF holdings are electric utilities, multi-utilities, gas utilities and water utilities \cite{factsheet_jxi}. 
+            \item iShares Global Consumer Staples ETF with ticker "KXI" which seeks to track the investment results of an index composed of global equities in the consumer staples sector. More specifically, the index tracked is the S{\&}P Global 1200 Consumer Staples Sector Capped Index. The top sub-sectors represented in the ETF holdings are food, beverages and tobacco, household and personal products and food and staples retailing \cite{factsheet_kxi}.
+            \item iShares Global Materials ETF with ticker "MXI" which seeks to track the investment results of an index composed of global equities in the materials sector. More specifically, the index tracked is the S{\&}P Global 1200 Materials Sector Index (TM). The top sub-sectors represented in the ETF holdings are chemicals, metals and mining, construction materials and containers and packaging \cite{factsheet_mxi}.
+            % Real estate ETF!
+            \item iShares Global REIT ETF with ticker "REET" which seeks to track the investment results of an index composed of global real estate equities in developed and emerging markets. More specifically, the index tracked is the FTSE EPRA Nareit Global REITS Net Total Return Index. The top sub-sectors represented in the ETF holdings are retail REIT's, industrial REIT's, residential REIT's and specialised REIT's \cite{factsheet_reet}. This single equity ETF is used as a proxy to represent the real estate asset class.
+            \item iShares Global Consumer Discretionary ETF with ticker "RXI" which seeks to track the investment results of an index composed of global equities in the consumer discretionary sector. More specifically, the index tracked is the S{\&}P Global 1200 Consumer Discretionary Sector Capped Index. The top sub-sectors represented in the ETF holdings are retailing, autos and components, consumer durables and consumer services \cite{factsheet_rxi}.
+        \end{itemize}
+        
+        In figures \ref{fig:equity_etp_1usd_return_1} and \ref{fig:equity_etp_1usd_return_2}, we can see the end-of-day absolute return on an investment of 1 U.S. dollar in each of the selected equity ETPs from the end of 2017 until 2020. The zero return level and the start of the backtesting period are marked by a horizontal and a vertical black dashed line respectively. The steep drop in both charts around March 2020 marks the results of the COVID-19 crisis.
+        
+        \begin{figure}[h!]
+            \centering
+            \includegraphics[width=1.15\textwidth]{bilder/Equity_ETP_1USD_Return_1.png}
+            \caption{Equity ETPs' returns on a 1 U.S. dollar investment from end 2017 until end 2020}
+            \label{fig:equity_etp_1usd_return_1}
+        \end{figure}\todo{correct wrong data}
+        
+        In figure \ref{fig:equity_etp_1usd_return_2}, we observe the great run and out-performance of the iShares Global Tech ETF with ticker IXN.
+        
+        \begin{figure}[h!]
+            \centering
+            \includegraphics[width=1.15\textwidth]{bilder/Equity_ETP_1USD_Return_2.png}
+            \caption{Equity ETPs' returns on a 1 U.S. dollar investment from end 2017 until end 2020}
+            \label{fig:equity_etp_1usd_return_2}
+        \end{figure}\todo{correct wrong data}
+        
+        In figure \ref{fig:re_etp_1usd_return}, we can see the end-of-day absolute return on an investment of 1 U.S. dollar in the ETP selected as a proxy to represent the real estate asset class.
+        
+        \begin{figure}[h!]
+            \centering
+            \includegraphics[width=1.15\textwidth]{bilder/RE_ETP_1USD_Return.png}
+            \caption{Real Estate ETP returns on a 1 U.S. dollar investment from end 2017 until end 2020}
+            \label{fig:re_etp_1usd_return}
+        \end{figure}\todo{better format}
+        
+        For the fixed income ETPs, we selected fixed income index exchange traded funds (ETFs) of the iShares category \textit{Core}. From all of the ETPs fulfilling those conditions shown in the online screener, we chose the following ETFs (alphabetically ordered by ticker):
+        % Fixed income alphabetically sorted.
+        \begin{itemize}
+            \item iShares Core International Aggregate Bond ETF with ticker "IAGG" which seeks to track the investment results of an index composed of global non-U.S. dollar-denominated investment-grade bonds that mitigates exposure to fluctuations between the value of the component currencies and the U.S. dollar. More specifically, the index tracked is the Bloomberg Barclays Global Aggregate ex USD 10\% Issuer Capped (Hedged) Index. Most of the ETF holdings are rated single A or higher, and have maturities between 3 and 10 years \cite{factsheet_iagg}.
+            \item iShares Core 10+ Year USD Bond ETF with ticker "ILTB" which seeks to track the investment results of an index composed of U.S. dollar-denominated bonds that are rated either investment-grade or high-yield with remaining maturities greater than 10 years. More specifically, the index tracked is the Bloomberg Barclays U.S. Universal 10+ Year Index. Most of the ETF holdings are rated AAA or BBB \cite{factsheet_iltb}.
+            \item iShares Core 5-10 Year USD Bond ETF with ticker "IMTB" which seeks to track the investment results of an index composed of U.S. dollar-denominated bonds that are rated either investment-grade or high-yield with remaining effective maturities between 5 and 10 years. More specifically, the index tracked is the Bloomberg US Universal 5-10 Years Index. Most of the ETF holdings are rated AAA \cite{factsheet_imtb}.
+            \item iShares Core 1-5 Year USD Bond ETF with ticker "ISTB" which seeks to track the investment results of an index composed of U.S. dollar-denominated bonds that are rated either investment-grade or high-yield with remaining maturities between 1 and 5 years. Most of the ETF holdings are rated AAA \cite{factsheet_istb}.
+        \end{itemize}
+        
+        \begin{figure}[h!]
+            \centering
+            \includegraphics[width=1.15\textwidth]{bilder/FI_ETP_1USD_Return.png}
+            \caption{Fixed Income ETPs' returns on a 1 U.S. dollar investment from end 2017 until end 2020}
+            \label{fig:fi_etp_1usd_return}
+        \end{figure}\todo{add comment}
+        
+        Because iShares commodities ETPs only offer exposure to gold and silver specifically and to certain commodity factor strategies, we turn to Invesco DB Funds for the selection of ETPs that will cover the commodities exposure of our portfolios. We chose Invesco DB Funds because they offer exposure to commodities aggregated by sector\footnote{Disclosure: the author of this paper is nor associated with any of Invesco's companies.}. From all commodity-linked funds offered by Invesco, we chose the following ones:
+        % Commodities alphabetically sorted.
+        \begin{itemize}
+            \item Invesco DB Agriculture Fund with ticker DBA which seeks to track changes in the level of the DBIQ Diversified Agriculture Index Excess Return over time. The 11 agricultural commodity futures contracts included in the holdings are corn, soybeans, sugar, coffee, live cattle, lean hogs, cocoa, wheat, Kansas wheat, feeder cattle and cotton \cite{factsheet_dba}.
+            \item Invesco DB Base Metals Fund with ticker DBB which seeks to track changes in the level of the DBIQ Optimum Yield Industrial Metals Index Excess Return over time. The 3 industrial metals commodity futures contracts included in the holdings are copper, aluminium and zinc \cite{factsheet_dbb}.
+            \item Invesco DB Energy Fund with ticker DBE which seeks to track changes in the level of the DBIQ Optimum Yield Energy Index Excess Return over time. The 5 energy commodity futures contracts included in the holdings are WTI crude, gasoline, NY Harbor ULSD, Brent crude and natural gas \cite{factsheet_dbe}.
+            \item Invesco DB Precious Metals Fund with ticker DBP which seeks to track changes in the level of the DBIQ Optimum Yield Precious Metals Index Excess Return over time. The 2 precious metals commodity futures contracts included in the holdings are gold and silver \cite{factsheet_dbp}.
+        \end{itemize}
+        
+        \begin{figure}[h!]
+            \centering
+            \includegraphics[width=1.15\textwidth]{bilder/Commodity_ETP_1USD_Return.png}
+            \caption{Commodity ETPs' returns on a 1 U.S. dollar investment from end 2017 until end 2020}
+            \label{fig:commodity_etp_1usd_return}
+        \end{figure} \todo{add comment}
+        
+        We acknowledge that the selecting of assets could have been more granular as well as coarser. The ETPs selected might also not be the cheapest available to represent their corresponding index. However, this selection is intended for the illustration of the stability of the different portfolio construction methods presented in this paper only, and not as asset selection for the portfolio construction of a particular investor.
+    
+    \subsubsection{Backtest Settings}
+        In total, 12 portfolios are computed, corresponding to a backtesting period from January 1, 2020 to December 31, 2020 and monthly rebalancing-interval. The rebalancing occurs on the first trading day of each month at 10:00 AM New York time. An initial account balance of 1 million U.S. dollars is assumed, and margin calls are deactivated in order to better simulate the theoretical portfolios computed.
+        
+        \todo{add commissions' settings}
+        
+        For the computation of portfolio weights, the monthly returns of the past 24 months is used as input. This last setting does not affect the equal weight portfolio construction method, because this naive method does not use any past data as input. The reason why we use 24 months of past data is the following.
+        
+        Let $N \in \mathbb{N} \setminus \{ 0 \}$ be the number of assets considered for the portfolio construction and $T \in \mathbb{N} \setminus \{ 0 \}$ the number of past periods data used as input for the optimisation model. Because the models analysed here rely upon the computation of a covariance matrix (except for the 2 naive methods: equal weight and inverse variance allocation), we need to compute one. Let the matrix that contains the $T$ returns in each row for all $N$ assets be defined as $R \in \mathbb{R}^{N \times T}$. The, $rank(R) \leq \min \{ N, T \}$ holds.
+        
+        Let now $\Sigma := [\sigma_{i,j}]_{i,j = 1, \dots, N} \in \mathbb{R}^{N \times N}$ be the covariance matrix of the $N$ assets, where $\sigma_{i,j}$ represents the covariance of the $i$th and $j$th asset, then $\Sigma$ can be computed as
+        \begin{align*}
+            \Sigma = \frac{1}{T} (\Tilde{R}^T \cdot \Tilde{R})
+        \end{align*}
+        where $\Tilde{R} \in \mathbb{R}^{N \times T}$ is defined as the matrix $R$ after centring the data row-wise, i.e. after subtracting from each element in each row the expected value of that same row. From this definition of $\Sigma$, we get that
+        \begin{align*}
+            rank(\Sigma) \leq rank(\Tilde{R}) \leq rank(R) \leq \min \{ N, T \}
+        \end{align*}
+        
+        That means that $\Sigma \in GL_N(\mathbb{R})$ if only if $rank(\Sigma) = rank(\Tilde{R}) = rank(R) = N$, i.e. $N \leq T$ must hold.
+        
+        In our practical implementation framework, we have selected $N = 20$ assets, therefore $T \geq 20$ must hold. We chose $T = 24$ because it corresponds to 2 full years of data.
+    
+    \subsubsection{Portfolio Analyses}
+        
+        % Tools to analyse PFs: HHI for concentration, risk-adjusted returns, stability: turn-over volume, what else?
+        
+        The portfolios generated by each optimisation method in backtesting will be analysed with respect to concentration, risk-adjusted return and turnover. To assess concentration, we will use a normalised version of the Herfindahl-Hirsch-Index (HHI). The normalisation step is necessary, because we will allow for short positions in our portfolios, and the HHI is only defined for positive portfolio weights. The Sharpe ratio is the chosen measure to quantify risk-returns. We will measure turnover via the total sum of incurred costs excluding spread over the whole backtesting period.
+        
+        % https://quant.stackexchange.com/questions/65525/herfindahl-hirsch-index-for-fx-portfolios?noredirect=1#comment92677_65525
+        %To assess concentration, we choose Yager's entropy, because, in contrast to the Herfindahl-Hirsch-Index, Yager's entropy allows asset weights to be negative. 
+        
+        %\begin{definition}[Yager's Entropy \cite{yagerentropy}]
+        %    Consider a portfolio with $n$ assets. Let $w_1, \dots, w_n \in \mathbb{R}$ be the weights associated to each of the $n$ assets in the portfolio. Then Yager's entropy $Q(w_1, \dots, w_n)$ is defined as
+        %    \begin{align*}
+        %        Q(w_1, \dots, w_n) := - \left( \sum_{i=1}^n \left| w_i - \frac{1}{n} \right|^z \right)^{\frac{1}{z}}
+        %    \end{align*}
+        %    where $z \in \mathbb{N}_{\geq 1}$ is a constant. \todo{change source to \url{https://www.sciencedirect.com/science/article/abs/pii/002002559400030F}}
+        %\end{definition}
+        
+        %\begin{remark}
+        %    \todo{add remark, that min entropy if equal weighted portfolio}
+        %\end{remark}
+        
+        \begin{definition}[Herfindahl-Hirsch-Index \cite{chammas}] % Page 71 (85 of the PDF)
+            Let $P$ be a portfolio containing $N$ assets with weights $w_i \in \mathbb{R}_{\geq 0}$ for all $i=1, \dots, N$, such that $\sum_{i=1}^N w_i = 1$. We define the Herfindahl-Hirsch-Index (HHI) as the sum of the squares of the weights, i.e.
+            \begin{align*}
+                HHI_P := \sum_{i=1}^N w_i^2
+            \end{align*}
+        \end{definition}
+        
+        \begin{definition}[Normalised Herfindahl-Hirsch-Index]
+            Let $P$ be a portfolio containing $N$ assets with weights $w_i \in \mathbb{R}$ for all $i=1, \dots, N$, such that $\sum_{i=1}^N w_i = 1$. We define the normalised Herfindahl-Hirsch-Index (nHHI) as the sum of the squares of the normalised weights, i.e.
+            \begin{align*}
+                nHHI_P := \sum_{i=1}^N \left( \frac{|w_i|}{\sum_{j=1}^N |w_j|}\right)^2
+            \end{align*}
+        \end{definition}
+        
+        \begin{remark}%\todo{add reference to QuantExchange?} % https://quant.stackexchange.com/questions/65525/herfindahl-hirsch-index-for-fx-portfolios?noredirect=1#comment92677_65525
+            Let $P$ be a portfolio containing $N$ assets with weights $w_i \in \mathbb{R}$ for all $i=1, \dots, N$, such that $\sum_{i=1}^N w_i = 1$. Because $\sum_{i=1}^N |w_i| \geq \left| \sum_{i=1}^N w_i \right|$, the following holds
+            \begin{align*}
+                nHHI_P &= \sum_{i=1}^N \left( \frac{|w_i|}{\sum_{j=1}^N |w_j|}\right)^2 \\
+                &= \left( \frac{1}{\sum_{j=1}^N |w_j|}\right)^2 \sum_{i=1}^N w_i^2 \\
+                &= \left( \frac{1}{\sum_{j=1}^N |w_j|}\right)^2 HHI_P \leq HHI_P
+            \end{align*}
+            i.e. for a given portfolio $P$, the Herfindahl-Hirsch-Index is smaller or equal than the normalised Herfindahl-Hirsch-Index.
+        \end{remark}
+        
+        \begin{definition}[Sharpe Ratio \cite{franzen}] % Page 216
+            Let $\mu_P \in \mathbb{R}$ be the return of investment $P$ and $\sigma_P \in \mathbb{R}_{\geq 0}$ its standard deviation. Moreover, let $R_f \in \mathbb{R}$ be the risk-free rate. Then the Sharpe Ratio of investment $P$ $SR_P \in \mathbb{R}$ is given by
+            \begin{align*}
+                SR_P := \frac{\mu_P - R_f}{\sigma_P}
+            \end{align*}
+        \end{definition}
+        
+        \begin{remark}
+            In this paper, we do not compute the Sharpe ratio of the backtest separately, and rely upon QuantConnect's internal overall portfolio statistics for its computation, i.e. all Sharpe ratios presented in this paper are the Sharpe ratios that appear in QuantConnect's backtesting results. QuantConnect computes the Sharpe ratio using the same definition as above, but using the annualised return of the portfolio in the backtest \cite{qcsharperatiocode}
+        \end{remark}
+        
+        \todo{add a definition for a ratio of returns to commissions to determine if higher costs correlate to higher returns or not}

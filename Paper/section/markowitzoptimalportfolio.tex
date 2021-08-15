@@ -14,6 +14,30 @@
 \subsection{N-Assets Optimal Portfolio}\label{nassetssec}
     \textit{Here I will give a mathematical description of the optimisation problem presented by Markowitz, including some short proofs of the key points used to formulate the optimal solution as the solution of a linear equation system.}
     
+    \begin{align*}
+        \min& \quad w^T \cdot \Sigma \cdot w \\
+        \text{s.t.}& \quad \mathbf{1}^T \cdot w = 1
+    \end{align*}
+    
+    \begin{align*}
+        \min& \quad \frac{1}{2} w^T \cdot \Sigma \cdot w \\
+        \text{s.t.}& \quad \mathbf{1}^T \cdot w = 1
+    \end{align*}
+    
+    \begin{align*}
+        &\Rightarrow &\mathcal{L}(w, \lambda) &= \frac{1}{2} \cdot w^T \cdot \Sigma \cdot w - \lambda \cdot (\mathbf{1}^T \cdot w - 1) \\
+        &\Rightarrow &\frac{\partial \mathcal{L}}{\partial w} &= \Sigma \cdot w - \lambda \cdot \mathbf{1} \\
+        & &\frac{\partial \mathcal{L}}{\partial \lambda} &= 1 - \mathbf{1}^T \cdot w
+    \end{align*}
+        
+    \begin{align*}
+        \frac{\partial \mathcal{L}}{\partial w} = 0 \Leftrightarrow \Sigma \cdot w &= \lambda \cdot \mathbf{1} \\
+        \Leftrightarrow w &= \Sigma^{-1} \cdot (\lambda \cdot \mathbf{1}) \\
+        \Leftrightarrow w &= \lambda \cdot \Sigma^{-1} \cdot \mathbf{1}
+    \end{align*}\todo{better format alignment of left arrows}
+    
+    
+    
     References: \cite{markowitzorg}, \cite{berndscherer}
     
 \subsection{Practical Implementation}
