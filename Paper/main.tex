@@ -23,12 +23,13 @@
 \usepackage{amssymb}
 
 %
-\theoremstyle{definition}
-\newtheorem{definition}{Definition}[section]
-\theoremstyle{remark}
-\newtheorem*{remark}{Remark}
-\theoremstyle{theorem}
+%\theoremstyle{plain}
 \newtheorem{theorem}{Theorem}[section]
+%\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+%\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+%\newtheorem{proof}[theorem]{Proof}
 %\newtheorem{corollary}{Corollary}[theorem]
 %\newtheorem{lemma}[theorem]{Lemma}
 %

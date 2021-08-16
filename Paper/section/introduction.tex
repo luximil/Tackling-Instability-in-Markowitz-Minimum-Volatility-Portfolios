@@ -16,7 +16,7 @@ The main critique point of Markowitz's portfolio construction model is the lack 
     
     To show the problems of Markowitz's minimum volatility portfolios in real applications, and compare these portfolios to the portfolios computed using the other methods and techniques, each of the techniques described in this paper is implemented for a portfolio of exchange traded products (ETPs) representing 4 assets classes: equities, fixed income, real estate and commodities. We use QuantConnect's \cite{qcwebsite} platform for the implementation and as the data source. This platform and its API allow us to perform backtests with 1-minute resolution data.
     
-    \subsubsection{Assets}
+    \subsubsection{The $N$ Assets}
         Due to the lack of Euro denominated ETP data in the QuantConnect data bank, we decided to use US dollar denominated ETPs which are intended for US based traders. For the selection of ETPs, we use iShares website \cite{isharesscreener}, because it provides a screener of its ETPs\footnote{Disclosure: the author of this paper is not associated with iShares, BlackRock or any of its companies.}.
         
         For the equity ETPs, we selected equity index exchange traded funds (ETFs) with regional category "Global" by sectors and industries. From all of the ETPs fulfilling those conditions shown in the online screener, we chose the following ETFs (alphabetically ordered by ticker):
@@ -37,32 +37,32 @@ The main critique point of Markowitz's portfolio construction model is the lack 
             \item iShares Global Consumer Discretionary ETF with ticker "RXI" which seeks to track the investment results of an index composed of global equities in the consumer discretionary sector. More specifically, the index tracked is the S{\&}P Global 1200 Consumer Discretionary Sector Capped Index. The top sub-sectors represented in the ETF holdings are retailing, autos and components, consumer durables and consumer services \cite{factsheet_rxi}.
         \end{itemize}
         
-        In figures \ref{fig:equity_etp_1usd_return_1} and \ref{fig:equity_etp_1usd_return_2}, we can see the end-of-day absolute return on an investment of 1 U.S. dollar in each of the selected equity ETPs from the end of 2017 until 2020. The zero return level and the start of the backtesting period are marked by a horizontal and a vertical black dashed line respectively. The steep drop in both charts around March 2020 marks the results of the COVID-19 crisis.
+        In figures \ref{fig:equity_etp_1usd_return_1} and \ref{fig:equity_etp_1usd_return_2}, we can see the end-of-day absolute return on an investment of 1 U.S. dollar in each of the selected equity ETPs from end 2019 until end 2020. The zero return level and the start of the backtesting period are marked by a horizontal and a vertical black dashed line respectively. The plot to the left of the vertical black dashed line represents the performances in the period used to warm-up the algorithm with data to be able to compute the first portfolio at the beginning of January 2020. The steep drop in both charts around March 2020 marks the results of the COVID-19 crisis.
         
         \begin{figure}[h!]
             \centering
             \includegraphics[width=1.15\textwidth]{bilder/Equity_ETP_1USD_Return_1.png}
-            \caption{Equity ETPs' returns on a 1 U.S. dollar investment from end 2017 until end 2020}
+            \caption{Equity ETPs' returns on a 1 U.S. dollar investment from end 2019 until end 2020}
             \label{fig:equity_etp_1usd_return_1}
-        \end{figure}\todo{correct wrong data}
+        \end{figure}
         
         In figure \ref{fig:equity_etp_1usd_return_2}, we observe the great run and out-performance of the iShares Global Tech ETF with ticker IXN.
         
         \begin{figure}[h!]
             \centering
             \includegraphics[width=1.15\textwidth]{bilder/Equity_ETP_1USD_Return_2.png}
-            \caption{Equity ETPs' returns on a 1 U.S. dollar investment from end 2017 until end 2020}
+            \caption{Equity ETPs' returns on a 1 U.S. dollar investment from end 2019 until end 2020}
             \label{fig:equity_etp_1usd_return_2}
-        \end{figure}\todo{correct wrong data}
+        \end{figure}
         
         In figure \ref{fig:re_etp_1usd_return}, we can see the end-of-day absolute return on an investment of 1 U.S. dollar in the ETP selected as a proxy to represent the real estate asset class.
         
         \begin{figure}[h!]
             \centering
             \includegraphics[width=1.15\textwidth]{bilder/RE_ETP_1USD_Return.png}
-            \caption{Real Estate ETP returns on a 1 U.S. dollar investment from end 2017 until end 2020}
+            \caption{Real Estate ETP returns on a 1 U.S. dollar investment from end 2019 until end 2020}
             \label{fig:re_etp_1usd_return}
-        \end{figure}\todo{better format}
+        \end{figure}
         
         For the fixed income ETPs, we selected fixed income index exchange traded funds (ETFs) of the iShares category \textit{Core}. From all of the ETPs fulfilling those conditions shown in the online screener, we chose the following ETFs (alphabetically ordered by ticker):
         % Fixed income alphabetically sorted.
@@ -76,7 +76,7 @@ The main critique point of Markowitz's portfolio construction model is the lack 
         \begin{figure}[h!]
             \centering
             \includegraphics[width=1.15\textwidth]{bilder/FI_ETP_1USD_Return.png}
-            \caption{Fixed Income ETPs' returns on a 1 U.S. dollar investment from end 2017 until end 2020}
+            \caption{Fixed Income ETPs' returns on a 1 U.S. dollar investment from end 2019 until end 2020}
             \label{fig:fi_etp_1usd_return}
         \end{figure}\todo{add comment}
         
@@ -92,7 +92,7 @@ The main critique point of Markowitz's portfolio construction model is the lack 
         \begin{figure}[h!]
             \centering
             \includegraphics[width=1.15\textwidth]{bilder/Commodity_ETP_1USD_Return.png}
-            \caption{Commodity ETPs' returns on a 1 U.S. dollar investment from end 2017 until end 2020}
+            \caption{Commodity ETPs' returns on a 1 U.S. dollar investment from end 2019 until end 2020}
             \label{fig:commodity_etp_1usd_return}
         \end{figure} \todo{add comment}
         
@@ -103,7 +103,7 @@ The main critique point of Markowitz's portfolio construction model is the lack 
         
         \todo{add commissions' settings}
         
-        For the computation of portfolio weights, the monthly returns of the past 24 months is used as input. This last setting does not affect the equal weight portfolio construction method, because this naive method does not use any past data as input. The reason why we use 24 months of past data is the following.
+        For the computation of portfolio weights, the monthly returns of the past 280 days is used as input. This last setting does not affect the equal weight portfolio construction method, because this naive method does not use any past data as input. The reason why we use 280 days of past data is the following.\todo{update reasoning}
         
         Let $N \in \mathbb{N} \setminus \{ 0 \}$ be the number of assets considered for the portfolio construction and $T \in \mathbb{N} \setminus \{ 0 \}$ the number of past periods data used as input for the optimisation model. Because the models analysed here rely upon the computation of a covariance matrix (except for the 2 naive methods: equal weight and inverse variance allocation), we need to compute one. Let the matrix that contains the $T$ returns in each row for all $N$ assets be defined as $R \in \mathbb{R}^{N \times T}$. The, $rank(R) \leq \min \{ N, T \}$ holds.
         
@@ -118,13 +118,13 @@ The main critique point of Markowitz's portfolio construction model is the lack 
         
         That means that $\Sigma \in GL_N(\mathbb{R})$ if only if $rank(\Sigma) = rank(\Tilde{R}) = rank(R) = N$, i.e. $N \leq T$ must hold.
         
-        In our practical implementation framework, we have selected $N = 20$ assets, therefore $T \geq 20$ must hold. We chose $T = 24$ because it corresponds to 2 full years of data.
+        In our practical implementation framework, we have selected $N = 20$ assets, therefore $T \geq 20$ must hold. We chose $T = 24$ because it corresponds to 2 full years of data.\todo{update reasoning and add 1/2 N (N+1) reason}
     
     \subsubsection{Portfolio Analyses}
         
         % Tools to analyse PFs: HHI for concentration, risk-adjusted returns, stability: turn-over volume, what else?
         
-        The portfolios generated by each optimisation method in backtesting will be analysed with respect to concentration, risk-adjusted return and turnover. To assess concentration, we will use a normalised version of the Herfindahl-Hirsch-Index (HHI). The normalisation step is necessary, because we will allow for short positions in our portfolios, and the HHI is only defined for positive portfolio weights. The Sharpe ratio is the chosen measure to quantify risk-returns. We will measure turnover via the total sum of incurred costs excluding spread over the whole backtesting period.
+        The portfolios generated by each optimisation method in backtesting will be analysed with respect to concentration, risk-adjusted return and turnover. To assess concentration, we will use a normalised version of the Herfindahl-Hirsch-Index (HHI). The normalisation step is necessary, because we will allow for short positions in our portfolios, and the HHI is only defined for positive portfolio weights. The Sharpe ratio is the chosen measure to quantify risk-returns. We will measure turnover via the total sum of incurred costs excluding spread over the whole backtesting period\todo{update measure to a ratio as stated below in a todo}.
         
         % https://quant.stackexchange.com/questions/65525/herfindahl-hirsch-index-for-fx-portfolios?noredirect=1#comment92677_65525
         %To assess concentration, we choose Yager's entropy, because, in contrast to the Herfindahl-Hirsch-Index, Yager's entropy allows asset weights to be negative. 
@@ -173,7 +173,7 @@ The main critique point of Markowitz's portfolio construction model is the lack 
         \end{definition}
         
         \begin{remark}
-            In this paper, we do not compute the Sharpe ratio of the backtest separately, and rely upon QuantConnect's internal overall portfolio statistics for its computation, i.e. all Sharpe ratios presented in this paper are the Sharpe ratios that appear in QuantConnect's backtesting results. QuantConnect computes the Sharpe ratio using the same definition as above, but using the annualised return of the portfolio in the backtest \cite{qcsharperatiocode}
+            In this paper, we do not compute the Sharpe ratio of the backtest separately, and rely upon QuantConnect's internal overall portfolio statistics for its computation, i.e. all Sharpe ratios presented in this paper are the Sharpe ratios that appear in QuantConnect's backtesting results. QuantConnect computes the Sharpe ratio using the same definition as above, but using the annualised return of the portfolio in the backtest \cite{qcsharperatiocode}.
         \end{remark}
         
         \todo{add a definition for a ratio of returns to commissions to determine if higher costs correlate to higher returns or not}

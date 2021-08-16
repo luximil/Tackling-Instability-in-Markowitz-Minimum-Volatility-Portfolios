@@ -2,6 +2,8 @@ import numpy as np
 import pandas as pd
 import scipy.cluster.hierarchy as sch
 
+# TODO: add logs and messages.
+
 class MarkowitzMinimumVolatilityInstabilityAnalyses(QCAlgorithm):
 
     def Initialize(self):
@@ -18,14 +20,14 @@ class MarkowitzMinimumVolatilityInstabilityAnalyses(QCAlgorithm):
         
         # Optimisation model for the portfolio construction.
         # Options: "Equal Weight", "Inverse Variance", "Markowitz Minimum Volatility", "Hierarchical Risk Parity"
-        self.optimisationModel = "Equal Weight"
+        self.optimisationModel = "Markowitz Minimum Volatility"
         # Constrain portfolio construction to long-only portfolios.
-        # Note: this parameter is ignored if the optimisation model is Markowitz Minimum Volatility.
+        # Note: if the optimisation model is Markowitz Minimum Volatility, portfolios are NEVER long-only constrained.
         self.longOnlyBias = False
         # Normalise the allocation vectors computed so that the weights in the portfolio sum up to 1.
         NormaliseAllocationVector = True
-        # Number of past months' data to consider for the portfolio construction.
-        LookbackPeriods = 24
+        # Number of past days' data to consider for the portfolio construction. If set to 0, no override.
+        LookbackPeriodsOverride = 0
         # New York time of the first day in the month at which the portfolio is rebalanced.
         RebalancingTime = "10:00"
         # List with the assets to consider in the portfolio.
@@ -75,6 +77,9 @@ class MarkowitzMinimumVolatilityInstabilityAnalyses(QCAlgorithm):
         # Set the alpha model to generate constant insights of type price, upwards direction and 1 month duration.
         self.SetAlpha(AtMonthStartAlphaModel(RebalancingTime, self.Time.month))
         
+        LookbackPeriods = int((2/3) * len(SelectedAssets)*(len(SelectedAssets) + 1))
+        if LookbackPeriodsOverride != 0:
+            LookbackPeriods = LookbackPeriodsOverride
         # Set the portfolio construction model to the custom model PortfolioOptimisationModel with the chosen optimisation method, lookback periods direction constrain and normalisation setting.
         self.SetPortfolioConstruction(PortfolioOptimisationModel(self.optimisationModel, LookbackPeriods, self.longOnlyBias, NormaliseAllocationVector))
         
@@ -95,6 +100,7 @@ class MarkowitzMinimumVolatilityInstabilityAnalyses(QCAlgorithm):
             Arguments:
                 data: Slice object keyed by symbol containing the stock data
         '''
+        pass
         
     def CustomSecurityInitializer(self, security):
         '''
@@ -103,10 +109,20 @@ class MarkowitzMinimumVolatilityInstabilityAnalyses(QCAlgorithm):
         Arguments:
             security: security object of the instrument to initialise.
         '''
+        # TODO: update leverage
         security.SetLeverage(5000000000000000)
         security.SetDataNormalizationMode(DataNormalizationMode.TotalReturn)
         
+    def OnOrderEvent(self, orderEvent):
+        #https://www.quantconnect.com/docs/algorithm-reference/trading-and-orders#Trading-and-Orders-Tracking-Order-Events
+        #https://www.quantconnect.com/docs/algorithm-reference/reality-modelling#Reality-Modelling-Fill-Models
+        order = self.Transactions.GetOrderById(orderEvent.OrderId)
+        if orderEvent.Status == OrderStatus.Filled: 
+            self.Log("{0}: {1}: {2}".format(self.Time, order.Type, orderEvent)) #orderEvent.OrderFee
+        
     def OnEndOfAlgorithm(self):
+        
+        # TODO: close all open positions
         
         modelname = ""
                 
@@ -187,7 +203,9 @@ class PortfolioOptimisationModel(PortfolioConstructionModel):
         if len(insights) > 0:
             algorithm.Debug("Computing portfolio allocation...")
             
-            returnsData = self.GetHistoricalReturns(algorithm, [insight.Symbol for insight in insights])
+            returnsData = self.GetHistoricalDailyReturns(algorithm, [insight.Symbol for insight in insights])
+            # TODO: debug
+            algorithm.Debug(str(returnsData.shape))
             
             if self.optimisationModel == "Equal Weight":
                 return self.ComputeEqualWeightPF(algorithm, returnsData)
@@ -206,7 +224,8 @@ class PortfolioOptimisationModel(PortfolioConstructionModel):
     #def OnSecuritiesChanged(self, algorithm, changes):
     #    pass
     
-    def GetHistoricalReturns(self, algorithm, symbols):
+    # TODO: delete method?
+    def GetHistoricalMonthlyReturns(self, algorithm, symbols):
         historicalReturns = dict()
         total_return = lambda x: x.loc[x.index.max(), "close"] / x.loc[x.index.min(), "open"] - 1
     
@@ -214,6 +233,16 @@ class PortfolioOptimisationModel(PortfolioConstructionModel):
             symbolReturns = algorithm.History(symbol, timedelta(days=31 * self.lookbackPeriods), Resolution.Daily).loc[symbol, ["close", "open"]]
             symbolReturns = symbolReturns.groupby([symbolReturns.index.year, symbolReturns.index.month]).apply(total_return)
             historicalReturns[str(symbol)] = symbolReturns.tail(self.lookbackPeriods)
+    
+        return pd.DataFrame.from_dict(historicalReturns, orient="index").sort_index()
+        
+    def GetHistoricalDailyReturns(self, algorithm, symbols):
+        historicalReturns = dict()
+    
+        for symbol in symbols:
+            symbolReturns = algorithm.History(symbol, self.lookbackPeriods, Resolution.Daily).loc[symbol, ["close", "open"]]
+            symbolReturns = symbolReturns.apply(lambda x: x.loc["close"] / x.loc["open"] - 1, axis=1)
+            historicalReturns[str(symbol)] = symbolReturns
     
         return pd.DataFrame.from_dict(historicalReturns, orient="index").sort_index()
         

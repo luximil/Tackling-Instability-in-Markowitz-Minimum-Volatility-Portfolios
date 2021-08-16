@@ -1,42 +1,94 @@
-\subsection{Assumptions}
-    \textit{In this section, I would like to shortly describe the assumptions made by the Markowitz model. For example, that the investor is risk-averse. Some of the assumptions are economic assumptions that do not affect the result of the mathematical optimisation problem, but some others do. Moreover, it is a common practice in the financial industry to document Model assumptions and limitations in all model documentations.}
-    
-    \begin{definition}
-        testest
-    \end{definition}
-    
-    \begin{theorem}[]
-        werwerew
-    \end{theorem}
-    
-    References: \cite{markowitzorg}
+
+
+%\subsection{Assumptions}
+%    \textit{In this section, I would like to shortly describe the assumptions made by the Markowitz model. For example, that the investor is risk-averse. Some of the assumptions are economic assumptions that do not affect the result of the mathematical optimisation problem, but some others do. Moreover, it is a common practice in the financial industry to document Model assumptions and limitations in all model documentations.}
 
 \subsection{N-Assets Optimal Portfolio}\label{nassetssec}
     \textit{Here I will give a mathematical description of the optimisation problem presented by Markowitz, including some short proofs of the key points used to formulate the optimal solution as the solution of a linear equation system.}
     
-    \begin{align*}
-        \min& \quad w^T \cdot \Sigma \cdot w \\
-        \text{s.t.}& \quad \mathbf{1}^T \cdot w = 1
-    \end{align*}
-    
-    \begin{align*}
-        \min& \quad \frac{1}{2} w^T \cdot \Sigma \cdot w \\
-        \text{s.t.}& \quad \mathbf{1}^T \cdot w = 1
-    \end{align*}
-    
-    \begin{align*}
-        &\Rightarrow &\mathcal{L}(w, \lambda) &= \frac{1}{2} \cdot w^T \cdot \Sigma \cdot w - \lambda \cdot (\mathbf{1}^T \cdot w - 1) \\
-        &\Rightarrow &\frac{\partial \mathcal{L}}{\partial w} &= \Sigma \cdot w - \lambda \cdot \mathbf{1} \\
-        & &\frac{\partial \mathcal{L}}{\partial \lambda} &= 1 - \mathbf{1}^T \cdot w
-    \end{align*}
+    \begin{definition}[Optimal Mean-Variance Portfolio \cite{markowitzorg}]
+        Let $N \in \mathbb{N}_{\geq 0}$ be the number of assets considered for the portfolio construction. Then the vector with the allocation weights for each of the $N$ assets in the \textbf{optimal portfolio for a given level of return $\mu_P \in \mathbb{R}$} is given by the solution of the following optimisation problem
+        \begin{align*}
+            \arg \min_{w \in \mathbb{R}^N}& \quad w^T \cdot \Sigma \cdot w \\
+            \text{s.t.}& \quad \mathbf{1}^T \cdot w = 1 \\
+            & \quad \mu^T \cdot w = \mu_P
+        \end{align*}
         
-    \begin{align*}
-        \frac{\partial \mathcal{L}}{\partial w} = 0 \Leftrightarrow \Sigma \cdot w &= \lambda \cdot \mathbf{1} \\
-        \Leftrightarrow w &= \Sigma^{-1} \cdot (\lambda \cdot \mathbf{1}) \\
-        \Leftrightarrow w &= \lambda \cdot \Sigma^{-1} \cdot \mathbf{1}
-    \end{align*}\todo{better format alignment of left arrows}
+        where $\mathbf{1} := [ 1, \dots, 1]^T \in \mathbb{R}^N$, $\Sigma \in \mathbb{R}^{N \times N}$ is the covariance matrix of returns and $\mu \in \mathbb{R}^N$ is the vector of expected returns of the $N$ assets.
+        
+        The set of pairs $(\mu_p, \sigma_P) \in \mathbb{R} \times \mathbb{R}_{\geq 0}$ such that, for each $\mu_P \in \mathbb{R}$, $\sigma_P := w_{opt}^T \cdot \Sigma \cdot w_{opt}$ where $w_{opt}$ is the solution to the optimisation problem above is called the \textbf{efficient frontier}.
+    \end{definition}
     
+    The main critique point of this optimisation problem is the high sensitivity to small changes in the expected returns vector, which leads to significantly different portfolio allocations even for a unchanged covariance matrix \cite{michaudreturnsstability}. Because returns are difficult to forecast accurately enough to keep the sensitivity within certain limits, some asset managers abstain from using them as input parameter. Portfolio allocations are then computed on the basis of the covariance matrix only, which is a risk parameter, hence the name \textit{risk-based} asset allocation. In the case of Markowitz's portfolio optimisation model, risk-based optimal portfolios correspond to minimum volatility portfolios.
     
+    \begin{definition}[Minimum Volatility Portfolio \cite{berndscherer}]
+        Let $N \in \mathbb{N}_{\geq 0}$ be the number of assets considered for the portfolio construction. Then the vector with the allocation weights for each of the $N$ assets in the \textbf{minimum volatility portfolio} is given by the solution of the following optimisation problem
+        \begin{align*}
+            \arg \min_{w \in \mathbb{R}^N}& \quad w^T \cdot \Sigma \cdot w \\
+            \text{s.t.}& \quad \mathbf{1}^T \cdot w = 1
+        \end{align*}
+    \end{definition}
+    
+    %\begin{remark}
+    %    The minimum volatility portfolio optimisation problem is equivalent to the following
+    %    \begin{align*}
+    %        \arg \min_{w \in \mathbb{R}^N}& \quad \frac{1}{2} \cdot w^T \cdot \Sigma \cdot w \\
+    %        \text{s.t.}& \quad \mathbf{1}^T \cdot w = 1
+    %    \end{align*}
+    %\end{remark}
+    
+    \begin{theorem}
+        Let the covariance matrix $\Sigma \in \mathbb{R}^{N \times N}$ be given. Assuming that $\Sigma$ is non-singular, the minimum volatility portfolio allocation vector is given by
+        \begin{align*}
+            w_{opt} := \frac{1}{\mathbf{1}^T \cdot \Sigma^{-1} \cdot \mathbf{1}} \cdot \Sigma^{-1} \mathbf{1}
+        \end{align*}
+    \end{theorem}
+    
+    \begin{proof}
+        Let $\Sigma \in \mathbb{R}^{N \times N}$ be a non-singular covariance matrix. We define the Lagrangian corresponding to the minimum volatility portfolio optimisation problem as follows
+        \begin{align*}
+            \mathcal{L}(w, \lambda) := w^T \cdot \Sigma \cdot w - \lambda (\mathbf{1}^T \cdot w - 1)
+        \end{align*}
+        
+        To find the solution to the optimisation problem, we take the derivatives with respect to both $w$ and $\lambda$, and set them to $0$.
+        \begin{align*}
+            \frac{\partial \mathcal{L}}{\partial w} &= 2 \cdot \Sigma \cdot w - \lambda \cdot \mathbf{1} \\
+            \frac{\partial \mathcal{L}}{\partial \lambda} &= 1 - \mathbf{1}^T \cdot w
+        \end{align*}
+        \begin{align*}
+            \Rightarrow \frac{\partial \mathcal{L}}{\partial w} = 0 & \Leftrightarrow & 2 \cdot \Sigma \cdot w &= \lambda \cdot \mathbf{1} \\
+            & \Leftrightarrow & w &= \Sigma^{-1} \cdot \left( \frac{\lambda}{2} \cdot \mathbf{1} \right) \\
+            & \Leftrightarrow & w &= \frac{\lambda}{2} \cdot \Sigma^{-1} \cdot \mathbf{1}
+        \end{align*}\todo{better format alignment of left arrows}
+        \begin{align*}
+            \Rightarrow \frac{\partial \mathcal{L}}{\partial \lambda} = 0 & \Leftrightarrow & 1 - \mathbf{1}^T \cdot w &= 0 \\
+            & \Leftrightarrow & 1 - \mathbf{1}^T \cdot \frac{\lambda}{2} \cdot \Sigma^{-1} \cdot \mathbf{1} &= 0 \\
+            & \Leftrightarrow & 1 - \frac{\lambda}{2} \cdot \mathbf{1}^T \cdot \Sigma^{-1} \cdot \mathbf{1} &= 0 \\
+            & \Leftrightarrow & \frac{\lambda}{2} \cdot \mathbf{1}^T \cdot \Sigma^{-1} \cdot \mathbf{1} &= 1 \\
+            & \Leftrightarrow & \frac{\lambda}{2} &= \frac{1}{\mathbf{1}^T \cdot \Sigma^{-1} \cdot \mathbf{1}} \\
+            & \Leftrightarrow & \lambda &= \frac{2}{\mathbf{1}^T \cdot \Sigma^{-1} \cdot \mathbf{1}}
+        \end{align*}\todo{better format alignment of left arrows}
+        \begin{align*}
+            w_{opt} := \frac{\frac{2}{\mathbf{1}^T \cdot \Sigma^{-1} \cdot \mathbf{1}}}{2} \cdot \Sigma^{-1} \cdot \mathbf{1} = \frac{1}{\mathbf{1}^T \cdot \Sigma^{-1} \cdot \mathbf{1}} \cdot \Sigma^{-1} \mathbf{1}
+        \end{align*}
+    \end{proof}
+    
+    The analytical solution presented above relies on computing the inverse of the covariance matrix used as input. Because covariance matrices are only positive-semidefinite, i.e. not necessarily non-singular, and because computing the inverse of a matrix is computationally very expensive, we would like to redefine the analytical solution as the solution of a linear system. However, we will further assume that the covariance matrix used is non-singular.
+    
+    \begin{theorem}
+         Let the covariance matrix $\Sigma \in \mathbb{R}^{N \times N}$ be given. Assuming that $\Sigma$ is non-singular, the minimum volatility portfolio allocation vector can be computed as follows:
+         \begin{enumerate}
+             \item Solve the linear system $\Sigma \cdot w = \mathbf{1}$, and define its solution as $\Tilde{w}_{opt} \in \mathbb{R}^T$. (Note that if $\Sigma$ is non-singular, $w_{opt}$ might not be unique or even exist).
+             \item Normalise $\Tilde{w}_{opt}$ for its elements to sum up to $1$, i.e. set $w_{opt} = \frac{1}{\mathbf{1}^T \cdot \Tilde{w}_{opt}} \cdot \Tilde{w}_{opt}$.
+         \end{enumerate}
+    \end{theorem}
+    
+    \begin{proof}
+        Let the covariance matrix $\Sigma \in \mathbb{R}^{N \times N}$ be given and non-singular. Moreover, let $\Tilde{w}_{opt}$ be the solution of the linear system $\Sigma \cdot w = \mathbf{1}$. Then we can write $\Tilde{w}_{opt} = \Sigma^{-1} \mathbf{1}$.
+        \begin{align*}
+            \Rightarrow \quad \frac{1}{\mathbf{1}^T \cdot \Tilde{w}_{opt}} = \frac{1}{\mathbf{1}^T \cdot \Sigma^{-1} \cdot \mathbf{1}} \cdot \Sigma^{-1} \mathbf{1} = w_{opt}
+        \end{align*}
+    \end{proof}
     
     References: \cite{markowitzorg}, \cite{berndscherer}
     
