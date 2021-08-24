@@ -3,6 +3,7 @@ import pandas as pd
 import scipy.cluster.hierarchy as sch
 
 # TODO: add logs and messages.
+# TODO: add comments.
 
 class MarkowitzMinimumVolatilityInstabilityAnalyses(QCAlgorithm):
 
@@ -12,22 +13,22 @@ class MarkowitzMinimumVolatilityInstabilityAnalyses(QCAlgorithm):
         # Input Parameters.
         # -----------------
         # Start date of the backtesting. Use a date one month before the first month in which a portfolio is constructed.
-        self.SetStartDate(2019, 12, 31)
+        self.SetStartDate(2020, 1, 1)
         # End date of the backtesting.
         self.SetEndDate(2020, 12, 31)
         # Initial account balance.
-        self.SetCash(100000)
+        self.SetCash(1000000)
         
         # Optimisation model for the portfolio construction.
         # Options: "Equal Weight", "Inverse Variance", "Markowitz Minimum Volatility", "Hierarchical Risk Parity"
-        self.optimisationModel = "Markowitz Minimum Volatility"
+        self.optimisationModel = "Hierarchical Risk Parity"
         # Constrain portfolio construction to long-only portfolios.
         # Note: if the optimisation model is Markowitz Minimum Volatility, portfolios are NEVER long-only constrained.
-        self.longOnlyBias = False
+        self.longOnlyBias = True
         # Normalise the allocation vectors computed so that the weights in the portfolio sum up to 1.
         NormaliseAllocationVector = True
         # Number of past days' data to consider for the portfolio construction. If set to 0, no override.
-        LookbackPeriodsOverride = 0
+        LookbackPeriodsOverride = 60
         # New York time of the first day in the month at which the portfolio is rebalanced.
         RebalancingTime = "10:00"
         # List with the assets to consider in the portfolio.
@@ -75,7 +76,7 @@ class MarkowitzMinimumVolatilityInstabilityAnalyses(QCAlgorithm):
         self.Portfolio.MarginCallModel = MarginCallModel.Null
         
         # Set the alpha model to generate constant insights of type price, upwards direction and 1 month duration.
-        self.SetAlpha(AtMonthStartAlphaModel(RebalancingTime, self.Time.month))
+        self.SetAlpha(AtMonthStartAlphaModel(RebalancingTime, 0))
         
         LookbackPeriods = int((2/3) * len(SelectedAssets)*(len(SelectedAssets) + 1))
         if LookbackPeriodsOverride != 0:
@@ -87,7 +88,6 @@ class MarkowitzMinimumVolatilityInstabilityAnalyses(QCAlgorithm):
         self.SetRiskManagement(NullRiskManagementModel())
         
         # Set the execution model to a custom model that optimises the margin used when rebalancing.
-        #TODO: delete? self.SetExecution(ImmediateExecutionModel())
         self.SetExecution(MarginOptimisedExecutionModel())
         
         global CovarianceMatricesExport
@@ -110,7 +110,7 @@ class MarkowitzMinimumVolatilityInstabilityAnalyses(QCAlgorithm):
             security: security object of the instrument to initialise.
         '''
         # TODO: update leverage
-        security.SetLeverage(5000000000000000)
+        security.SetLeverage(3)
         security.SetDataNormalizationMode(DataNormalizationMode.TotalReturn)
         
     def OnOrderEvent(self, orderEvent):
@@ -122,7 +122,8 @@ class MarkowitzMinimumVolatilityInstabilityAnalyses(QCAlgorithm):
         
     def OnEndOfAlgorithm(self):
         
-        # TODO: close all open positions
+        # Close all open positions
+        self.Liquidate()
         
         modelname = ""
                 
@@ -152,7 +153,7 @@ class MarkowitzMinimumVolatilityInstabilityAnalyses(QCAlgorithm):
         if AllocationVectorsExport:
             allovectors = pd.DataFrame.from_dict(AllocationVectorsExport, orient="index")
             self.ObjectStore.Save(modelname+" Allocation Vectors", allovectors.to_json())
-
+        
 class AtMonthStartAlphaModel(AlphaModel):
     '''
     Custom AlphaModel class that emits constant insights of type price, upwards direction and 1 month duration on the first day of each month at the chosen rebalancing time.
@@ -204,8 +205,6 @@ class PortfolioOptimisationModel(PortfolioConstructionModel):
             algorithm.Debug("Computing portfolio allocation...")
             
             returnsData = self.GetHistoricalDailyReturns(algorithm, [insight.Symbol for insight in insights])
-            # TODO: debug
-            algorithm.Debug(str(returnsData.shape))
             
             if self.optimisationModel == "Equal Weight":
                 return self.ComputeEqualWeightPF(algorithm, returnsData)
@@ -221,10 +220,6 @@ class PortfolioOptimisationModel(PortfolioConstructionModel):
             
         return []
         
-    #def OnSecuritiesChanged(self, algorithm, changes):
-    #    pass
-    
-    # TODO: delete method?
     def GetHistoricalMonthlyReturns(self, algorithm, symbols):
         historicalReturns = dict()
         total_return = lambda x: x.loc[x.index.max(), "close"] / x.loc[x.index.min(), "open"] - 1
@@ -282,11 +277,15 @@ class PortfolioOptimisationModel(PortfolioConstructionModel):
     
     def ComputeMarkowitzMinVolPF(self, algorithm, returnsData):
         covmatrix = returnsData.T.cov()
+        
+        # TODO: save condition numbers.
+        #algorithm.Debug(np.linalg.cond(covmatrix))
         numAssets = covmatrix.shape[0]
         
-        covInv = np.linalg.inv(covmatrix)
-        weights = np.dot(covInv, np.ones(numAssets))
-        weights = weights / (np.dot(np.ones(numAssets), weights))
+        #covInv = np.linalg.inv(covmatrix)
+        #weights = np.dot(covInv, np.ones(numAssets))
+        weights = np.linalg.solve(covmatrix, np.ones(numAssets))
+        weights = weights / weights.sum()
         
         targets = []
         i = 0
@@ -296,7 +295,7 @@ class PortfolioOptimisationModel(PortfolioConstructionModel):
             
         # TODO: save weights with columns names of the symbols.
         AllocationVectorsExport[algorithm.Time] = weights
-        CovarianceMatricesExport[algorithm.Time] = covmatrix
+        CovarianceMatricesExport[algorithm.Time] = covmatrix.to_numpy().reshape(numAssets**2)
             
         return targets
     
@@ -376,6 +375,7 @@ class MarginOptimisedExecutionModel(ExecutionModel):
     def Execute(self, algorithm, targets):
         
         algorithm.Debug("Rebalancing portfolio...")
+        # TODO: track turnover
         
         orderQuantities = []
         
@@ -390,26 +390,4 @@ class MarginOptimisedExecutionModel(ExecutionModel):
         for (symbol, quantity) in sortedOrderQuantities:
             algorithm.MarketOrder(symbol, quantity)
         
-        """
-        i = 0
-        numOrders = len(sortedOrderQuantities)
-        while i < np.floor(numOrders / 2):
-            shortSymbol = sortedOrderQuantities[i][0]
-            shortSymbolQuantity = sortedOrderQuantities[i][1]
-            algorithm.MarketOrder(shortSymbol, shortSymbolQuantity)
-            
-            longSymbol = sortedOrderQuantities[i][0]
-            longSymbolQuantity = sortedOrderQuantities[i][1]
-            algorithm.MarketOrder(shortSymbol, shortSymbolQuantity)
-            
-            i = i + 1
-        
-        if numOrders % 2 == 1:
-            i = int(np.ceil(numOrders / 2))
-            algorithm.MarketOrder(sortedOrderQuantities[i][0], sortedOrderQuantities[i][1])
-        """
-        
         pass
-    
-    #def OnSecuritiesChanged(self, algorithm, changes):
-    #    pass

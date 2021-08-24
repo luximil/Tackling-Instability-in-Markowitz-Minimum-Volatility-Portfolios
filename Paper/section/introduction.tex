@@ -64,7 +64,7 @@ The main critique point of Markowitz's portfolio construction model is the lack 
             \label{fig:re_etp_1usd_return}
         \end{figure}
         
-        For the fixed income ETPs, we selected fixed income index exchange traded funds (ETFs) of the iShares category \textit{Core}. From all of the ETPs fulfilling those conditions shown in the online screener, we chose the following ETFs (alphabetically ordered by ticker):
+        For the fixed income ETPs, we selected fixed income index exchange traded funds (ETFs) of the iShares \textit{Core} category. From all of the ETPs fulfilling those conditions shown in the online screener, we chose the following ETFs (alphabetically ordered by ticker):
         % Fixed income alphabetically sorted.
         \begin{itemize}
             \item iShares Core International Aggregate Bond ETF with ticker "IAGG" which seeks to track the investment results of an index composed of global non-U.S. dollar-denominated investment-grade bonds that mitigates exposure to fluctuations between the value of the component currencies and the U.S. dollar. More specifically, the index tracked is the Bloomberg Barclays Global Aggregate ex USD 10\% Issuer Capped (Hedged) Index. Most of the ETF holdings are rated single A or higher, and have maturities between 3 and 10 years \cite{factsheet_iagg}.
@@ -73,14 +73,16 @@ The main critique point of Markowitz's portfolio construction model is the lack 
             \item iShares Core 1-5 Year USD Bond ETF with ticker "ISTB" which seeks to track the investment results of an index composed of U.S. dollar-denominated bonds that are rated either investment-grade or high-yield with remaining maturities between 1 and 5 years. Most of the ETF holdings are rated AAA \cite{factsheet_istb}.
         \end{itemize}
         
+        In figure \ref{fig:fi_etp_1usd_return}, we can see the end-of-day absolute return on an investment of 1 U.S. dollar in each of the selected fixed income ETPs from end 2019 until end 2020. The zero return level and the start of the backtesting period are marked by a horizontal and a vertical black dashed line respectively. The plot to the left of the vertical black dashed line represents the performances in the period used to warm-up the algorithm with data to be able to compute the first portfolio at the beginning of January 2020. The steep drop in both charts around March 2020 marks the results of the COVID-19 crisis, from which all fixed income ETFs recovered quickier than equity ETFs.
+        
         \begin{figure}[h!]
             \centering
             \includegraphics[width=1.15\textwidth]{bilder/FI_ETP_1USD_Return.png}
             \caption{Fixed Income ETPs' returns on a 1 U.S. dollar investment from end 2019 until end 2020}
             \label{fig:fi_etp_1usd_return}
-        \end{figure}\todo{add comment}
+        \end{figure}
         
-        Because iShares commodities ETPs only offer exposure to gold and silver specifically and to certain commodity factor strategies, we turn to Invesco DB Funds for the selection of ETPs that will cover the commodities exposure of our portfolios. We chose Invesco DB Funds because they offer exposure to commodities aggregated by sector\footnote{Disclosure: the author of this paper is nor associated with any of Invesco's companies.}. From all commodity-linked funds offered by Invesco, we chose the following ones:
+        Because iShares commodities ETPs only offer exposure to gold and silver specifically and to certain commodity factor strategies, we turn to Invesco DB Funds for the selection of ETPs that will cover the commodities exposure of our portfolios. We chose Invesco DB Funds because they offer exposure to commodities aggregated by sector\footnote{Disclosure: the author of this paper is not associated with any of Invesco's companies.}. From all commodity-linked funds offered by Invesco, we chose the following ones:
         % Commodities alphabetically sorted.
         \begin{itemize}
             \item Invesco DB Agriculture Fund with ticker DBA which seeks to track changes in the level of the DBIQ Diversified Agriculture Index Excess Return over time. The 11 agricultural commodity futures contracts included in the holdings are corn, soybeans, sugar, coffee, live cattle, lean hogs, cocoa, wheat, Kansas wheat, feeder cattle and cotton \cite{factsheet_dba}.
@@ -89,21 +91,21 @@ The main critique point of Markowitz's portfolio construction model is the lack 
             \item Invesco DB Precious Metals Fund with ticker DBP which seeks to track changes in the level of the DBIQ Optimum Yield Precious Metals Index Excess Return over time. The 2 precious metals commodity futures contracts included in the holdings are gold and silver \cite{factsheet_dbp}.
         \end{itemize}
         
+        In Figure\ref{fig:commodity_etp_1usd_return}, we can see the end-of-day absolute return on an investment of 1 U.S. dollar in each of the selected commodity ETPs from end 2019 until end 2020. The zero return level and the start of the backtesting period are marked by a horizontal and a vertical black dashed line respectively. The plot to the left of the vertical black dashed line represents the performances in the period used to warm-up the algorithm with data to be able to compute the first portfolio at the beginning of January 2020. The steep drop in both charts around March 2020 marks the results of the COVID-19 crisis. The red line represents the returns of the precious metals fund, which recovered quicker than the energy fund in green.
+        
         \begin{figure}[h!]
             \centering
             \includegraphics[width=1.15\textwidth]{bilder/Commodity_ETP_1USD_Return.png}
             \caption{Commodity ETPs' returns on a 1 U.S. dollar investment from end 2019 until end 2020}
             \label{fig:commodity_etp_1usd_return}
-        \end{figure} \todo{add comment}
+        \end{figure}
         
         We acknowledge that the selecting of assets could have been more granular as well as coarser. The ETPs selected might also not be the cheapest available to represent their corresponding index. However, this selection is intended for the illustration of the stability of the different portfolio construction methods presented in this paper only, and not as asset selection for the portfolio construction of a particular investor.
     
     \subsubsection{Backtest Settings}
         In total, 12 portfolios are computed, corresponding to a backtesting period from January 1, 2020 to December 31, 2020 and monthly rebalancing-interval. The rebalancing occurs on the first trading day of each month at 10:00 AM New York time. An initial account balance of 1 million U.S. dollars is assumed, and margin calls are deactivated in order to better simulate the theoretical portfolios computed.
         
-        \todo{add commissions' settings}
-        
-        For the computation of portfolio weights, the monthly returns of the past 280 days is used as input. This last setting does not affect the equal weight portfolio construction method, because this naive method does not use any past data as input. The reason why we use 280 days of past data is the following.\todo{update reasoning}
+        For the computation of portfolio weights, the daily returns of the past 60 days is used as input. This last setting does not affect the equal weight portfolio construction method, because this naive method does not use any past data as input. The reason why we use 60 days of past data is the following.
         
         Let $N \in \mathbb{N} \setminus \{ 0 \}$ be the number of assets considered for the portfolio construction and $T \in \mathbb{N} \setminus \{ 0 \}$ the number of past periods data used as input for the optimisation model. Because the models analysed here rely upon the computation of a covariance matrix (except for the 2 naive methods: equal weight and inverse variance allocation), we need to compute one. Let the matrix that contains the $T$ returns in each row for all $N$ assets be defined as $R \in \mathbb{R}^{N \times T}$. The, $rank(R) \leq \min \{ N, T \}$ holds.
         
@@ -118,13 +120,24 @@ The main critique point of Markowitz's portfolio construction model is the lack 
         
         That means that $\Sigma \in GL_N(\mathbb{R})$ if only if $rank(\Sigma) = rank(\Tilde{R}) = rank(R) = N$, i.e. $N \leq T$ must hold.
         
-        In our practical implementation framework, we have selected $N = 20$ assets, therefore $T \geq 20$ must hold. We chose $T = 24$ because it corresponds to 2 full years of data.\todo{update reasoning and add 1/2 N (N+1) reason}
+        In our practical implementation framework, we have selected $N = 20$ assets, therefore $T \geq 20$ must hold. We chose $T = 60$ because it corresponds to 3 full trading months of data.
     
     \subsubsection{Portfolio Analyses}
         
         % Tools to analyse PFs: HHI for concentration, risk-adjusted returns, stability: turn-over volume, what else?
         
-        The portfolios generated by each optimisation method in backtesting will be analysed with respect to concentration, risk-adjusted return and turnover. To assess concentration, we will use a normalised version of the Herfindahl-Hirsch-Index (HHI). The normalisation step is necessary, because we will allow for short positions in our portfolios, and the HHI is only defined for positive portfolio weights. The Sharpe ratio is the chosen measure to quantify risk-returns. We will measure turnover via the total sum of incurred costs excluding spread over the whole backtesting period\todo{update measure to a ratio as stated below in a todo}.
+        The portfolios generated by each optimisation method in backtesting will be analysed with respect to risk-adjusted return, concentration and stability. The Sharpe ratio is the chosen measure to quantify risk-returns. To assess concentration, we will use a normalised version of the Herfindahl-Hirsch-Index (HHI). The normalisation step is necessary, because we will allow for short positions in our portfolios, and the HHI is only defined for positive portfolio weights. We will measure stability via the turnover of the portfolio.
+        
+        \begin{definition}[Sharpe Ratio \cite{franzen}] % Page 216
+            Let $\mu_P \in \mathbb{R}$ be the return of investment $P$ and $\sigma_P \in \mathbb{R}_{\geq 0}$ its standard deviation. Moreover, let $R_f \in \mathbb{R}$ be the risk-free rate. Then the \textbf{Sharpe Ratio of investment $P$} $SR_P \in \mathbb{R}$ is given by
+            \begin{align*}
+                SR_P := \frac{\mu_P - R_f}{\sigma_P}
+            \end{align*}
+        \end{definition}
+        
+        \begin{remark}
+            In this paper, we do not compute the Sharpe ratio of the backtest separately, and rely upon QuantConnect's internal overall portfolio statistics for its computation, i.e. all Sharpe ratios presented in this paper are the Sharpe ratios that appear in QuantConnect's backtesting results. QuantConnect computes the Sharpe ratio using the same definition as above, but using the annualised return of the portfolio in the backtest \cite{qcsharperatiocode}.
+        \end{remark}
         
         % https://quant.stackexchange.com/questions/65525/herfindahl-hirsch-index-for-fx-portfolios?noredirect=1#comment92677_65525
         %To assess concentration, we choose Yager's entropy, because, in contrast to the Herfindahl-Hirsch-Index, Yager's entropy allows asset weights to be negative. 
@@ -142,14 +155,14 @@ The main critique point of Markowitz's portfolio construction model is the lack 
         %\end{remark}
         
         \begin{definition}[Herfindahl-Hirsch-Index \cite{chammas}] % Page 71 (85 of the PDF)
-            Let $P$ be a portfolio containing $N$ assets with weights $w_i \in \mathbb{R}_{\geq 0}$ for all $i=1, \dots, N$, such that $\sum_{i=1}^N w_i = 1$. We define the Herfindahl-Hirsch-Index (HHI) as the sum of the squares of the weights, i.e.
+            Let $P$ be a portfolio containing $N$ assets with weights $w_i \in \mathbb{R}_{\geq 0}$ for all $i=1, \dots, N$, such that $\sum_{i=1}^N w_i = 1$. We define the \textbf{Herfindahl-Hirsch-Index (HHI)} as the sum of the squares of the weights, i.e.
             \begin{align*}
                 HHI_P := \sum_{i=1}^N w_i^2
             \end{align*}
         \end{definition}
         
         \begin{definition}[Normalised Herfindahl-Hirsch-Index]
-            Let $P$ be a portfolio containing $N$ assets with weights $w_i \in \mathbb{R}$ for all $i=1, \dots, N$, such that $\sum_{i=1}^N w_i = 1$. We define the normalised Herfindahl-Hirsch-Index (nHHI) as the sum of the squares of the normalised weights, i.e.
+            Let $P$ be a portfolio containing $N$ assets with weights $w_i \in \mathbb{R}$ for all $i=1, \dots, N$, such that $\sum_{i=1}^N w_i = 1$. We define the \textbf{normalised Herfindahl-Hirsch-Index (nHHI)} as the sum of the squares of the normalised weights, i.e.
             \begin{align*}
                 nHHI_P := \sum_{i=1}^N \left( \frac{|w_i|}{\sum_{j=1}^N |w_j|}\right)^2
             \end{align*}
@@ -165,15 +178,67 @@ The main critique point of Markowitz's portfolio construction model is the lack 
             i.e. for a given portfolio $P$, the Herfindahl-Hirsch-Index is smaller or equal than the normalised Herfindahl-Hirsch-Index.
         \end{remark}
         
-        \begin{definition}[Sharpe Ratio \cite{franzen}] % Page 216
-            Let $\mu_P \in \mathbb{R}$ be the return of investment $P$ and $\sigma_P \in \mathbb{R}_{\geq 0}$ its standard deviation. Moreover, let $R_f \in \mathbb{R}$ be the risk-free rate. Then the Sharpe Ratio of investment $P$ $SR_P \in \mathbb{R}$ is given by
+        \begin{definition}[Turnover \cite{equalweight}]
+            Consider a portfolio $P$ with $N$ assets. Let $w_{j,t+1} \in \mathbb{R}$ be the portfolio weight assigned to asset $i$ at time $t$ by the portfolio optimisation method, and let $w_{j,t^+} \in \mathbb{R}$ be the portfolio weight of asset $i$ before rebalancing at time $t+1$ for $i=1, \dots, N$ and $t=0, \dots, T$. The turnover of the portfolio $P$ is defined as
             \begin{align*}
-                SR_P := \frac{\mu_P - R_f}{\sigma_P}
+                TO_P := \frac{1}{T} \sum_{t=0}^T \sum_{i=1}^N \left( \left| w_{i, t+1} - w_{i, t^+} \right| \right)
+            \end{align*}
+            where $T \in \mathbb{N}$ is the number of rebalancing points of the portfolio.
+            
+            This turnover quantity can be interpreted as the average percentage of wealth traded at each rebalancing point.
+        \end{definition}
+        
+    \subsubsection{Benchmark Portfolio Construction Methods}
+        We use 2 naive portfolio allocation models, equal weight and inverse variance allocation, as benchmarks for the other 3 methods (Markowitz minimum volatility portfolio, Markowitz minimum volatility portfolio with covariance matrix shrinking and hierarchical risk parity) to estimate if the the increased complexity of the latter can be justified in form of better risk-adjusted returns, concentration and stability.
+        
+        \begin{definition}[Equal Weight Portfolio \cite{equalweight}]
+            Consider a portfolio of $N \in \mathbb{N}_{>0}$ assets, and let $w \in \mathbb{R}^N$ be the vector of allocation weights. The \textbf{equal weight allocation portfolio (EWP)} is defined as
+            \begin{align*}
+                w_i := \frac{1}{N} \quad \text{for all} \quad i = 1, \dots, N
             \end{align*}
         \end{definition}
         
+        The equal weight portfolio is the most widely used allocation method when no information about the assets in the portfolio is available to rank them or compute some measure to define some other portfolio. It is also the most naive way of allocating capital across the $N$ assets considered. However, this naive method has proven to perform even better than other, even very sophisticated, methods \cite{equalweight}.
+        
+        \begin{definition}[Inverse Variance Portfolio \cite{equalweight}]
+            Consider a portfolio of $N \in \mathbb{N}_{>0}$ assets, and let $w \in \mathbb{R}^N$ be the vector of allocation weights. The \textbf{inverse variance allocation portfolio (IVP)} is defined as
+            \begin{align*}
+                w_i := \frac{\frac{1}{\mathbb{V}[X_i]}}{\sum_{k=1}^N \mathbb{V}[X_k]} \quad \text{for} \quad i=1, \dots, N
+            \end{align*}
+            where $\mathbb{V}[X_i]$ is the variance of the returns' distribution of the $i$-th asset.
+        \end{definition}
+        
         \begin{remark}
-            In this paper, we do not compute the Sharpe ratio of the backtest separately, and rely upon QuantConnect's internal overall portfolio statistics for its computation, i.e. all Sharpe ratios presented in this paper are the Sharpe ratios that appear in QuantConnect's backtesting results. QuantConnect computes the Sharpe ratio using the same definition as above, but using the annualised return of the portfolio in the backtest \cite{qcsharperatiocode}.
+            The inverse variance allocation portfolio is the solution of the following optimisation problem
+            \begin{align*}
+                \arg \min_{w \in \mathbb{R}^N}& \quad w^T \cdot \Sigma \cdot w \\
+                \text{s.t.}& \quad \mathbf{1}^T \cdot w = 1
+            \end{align*}
+            where $\Sigma := diag( \mathbb{V}[X_1], \dots, \mathbb{V}[X_N] )$ such that $X_i$ is the returns distribution of the $i$-th asset.
+            
+            This means that the inverse variance portfolio is the minimum volatility portfolio considering all assets uncorrelated.
         \end{remark}
         
-        \todo{add a definition for a ratio of returns to commissions to determine if higher costs correlate to higher returns or not}
+        Although IVP is more complex than the equal weight allocation  model because the estimation of some parameters is needed, it is still considered a naive method.
+        
+        The vectors with the optimal portfolios computed these 2 naive methods can be found in Appendix. In figure \ref{fig:ivp_allocation_plot}, a visual representation of the target allocation of all 20 assets in the IVP over the backtesting period is presented. Most of the portfolio is allocated to ISTB (iShares Core 1-5 Year USD Bond ETF) and IAGG (iShares Core International Aggregate Bond ETF). The allocation to the first drops at the start of the COVID-19 crisis, while the allocation of the second rises. The allocation to IMTB (iShares 5-10 Year USD Bond ETF) rises after the start of the COVID-19 crisis. The rest of assets main a relatively stable allocation over the whole backtesting period. Finally, the high allocation to fixed income ETFs is not surprising, because they tend to present lower variance of returns, while the allocation to equity, including real-estate, and commodity ETPs remains low due to the higher variance of returns that they tend to present.
+        
+        \begin{figure}[h!]
+            \centering
+            \includegraphics[width=1.15\textwidth]{bilder/IVP_allocation_plot.png}
+            \caption{IVP Target Allocation over Time}
+            \label{fig:ivp_allocation_plot}
+        \end{figure}
+        
+        A similar plot for the EWP allocation over time is not necessary, since the allocation to each asset is equal and remains the same over the whole backtesting period.
+        
+        Figure \ref{fig:nHHI_EWP_and_IVP} shows the evolution of the nHHI of the 2 naive portfolio allocation models described above. The nHHI of the equal weight portfolios is low and stays the same over time, as expected. In the case of IVP, the nHHI drops with the start of the COVID-19 crisis, mostly because of a reduction in the allocation to ISTB as explained previously.
+        
+        \begin{figure}[h!]
+            \centering
+            \includegraphics[width=1.15\textwidth]{bilder/nHHI_EWP_and_IVP.png}
+            \caption{nHHI over Time}
+            \label{fig:nHHI_EWP_and_IVP}
+        \end{figure}
+        
+        

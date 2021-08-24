@@ -75,7 +75,7 @@
     
     The analytical solution presented above relies on computing the inverse of the covariance matrix used as input. Because covariance matrices are only positive-semidefinite, i.e. not necessarily non-singular, and because computing the inverse of a matrix is computationally very expensive, we would like to redefine the analytical solution as the solution of a linear system. However, we will further assume that the covariance matrix used is non-singular.
     
-    \begin{theorem}
+    \begin{theorem}\label{markowitzlinearsystem}
          Let the covariance matrix $\Sigma \in \mathbb{R}^{N \times N}$ be given. Assuming that $\Sigma$ is non-singular, the minimum volatility portfolio allocation vector can be computed as follows:
          \begin{enumerate}
              \item Solve the linear system $\Sigma \cdot w = \mathbf{1}$, and define its solution as $\Tilde{w}_{opt} \in \mathbb{R}^T$. (Note that if $\Sigma$ is non-singular, $w_{opt}$ might not be unique or even exist).
@@ -90,12 +90,38 @@
         \end{align*}
     \end{proof}
     
-    References: \cite{markowitzorg}, \cite{berndscherer}
+    %References: \cite{markowitzorg}, \cite{berndscherer}
     
 \subsection{Practical Implementation}
-    \textit{In this section, I will describe the optimal portfolios computed within the practical implementation framework}
+    %\textit{In this section, I will describe the optimal portfolios computed within the practical implementation framework}
     
-    \subsubsection{Markowtiz's Curse}
+    For the practical implementation, we use Numpy's linear system solver, which computes a solution to the linear system in Theorem \ref{markowitzlinearsystem} using LAPACK routine \_gesv. This means, that the solution is computed using the $LU$ decomposition of the covariance matrix with partial pivoting.
+    
+    \begin{theorem}[LU-Decomposition with Partial Pivoting \cite{mirsky}]
+        Let $A \in \mathbb{R}^{N \times N}$ be a non-singular matrix, then there exists a unique factorisation
+        \begin{align*}
+            A := P \cdot L \cdot U
+        \end{align*}
+        where $P \in \mathbb{R}^{N \times N}$ is a permutation matrix, $L \in \mathbb{R}^{N \times N}$ is a unit lower triangular matrix and $U \in \mathbb{R}^{N \times N}$ is an upper triangular matrix.
+    \end{theorem}
+    
+    
+    
+    \begin{figure}[h!]
+        \centering
+        \includegraphics[width=1.15\textwidth]{bilder/MMVP_allocation_plot.png}
+        \caption{MMVP Target Allocation over Time}
+        \label{fig:MMVP_allocation_plot}
+    \end{figure}
+    
+    \begin{figure}[h!]
+        \centering
+        \includegraphics[width=1.15\textwidth]{bilder/nHHI_EWP_IVP_MMVP.png}
+        \caption{nHHIn over Time}
+        \label{fig:nHHI_EWP_IVP_MMVP}
+    \end{figure}
+    
+    \subsubsection{Markowitz's Curse}
         \textit{Using the results of the practical implementation, the concept of Markowitz's is defined here. Moreover, I will provide some mathematical explanation by computing the condition number of the covariance matrices used in the practical implementation and relating them to the error bounds we saw in Numerical Linear Algebra I}
         
         References: \cite{lopezmain}
