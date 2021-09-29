@@ -1,7 +1,8 @@
 \documentclass[a4paper,11pt,abstracton,twoside,titlepage,openany,nochapterprefix,noappendixprefix,liststotoc,bibtotoc,normalheadings,pointlessnumbers,BCOR1cm]{article}
 
 \usepackage{graphicx}
-\usepackage[english]{babel}
+%\usepackage[english]{babel}
+\usepackage[ngerman, english]{babel}
 \usepackage[utf8]{inputenc}
 \usepackage{longtable}
 \usepackage{fancyhdr}
@@ -21,7 +22,9 @@
 \usepackage[export]{adjustbox}
 \usepackage{amsmath}
 \usepackage{amssymb}
-\usepackage{csvsimple}
+\usepackage[toc,page]{appendix}
+\usepackage[autostyle]{csquotes}
+\usepackage{tabularx}
 
 %
 %\theoremstyle{plain}
@@ -77,7 +80,7 @@
 %	Insert or uncomment the type of your work here
 %	Diplomarbeit
 %	Master-thesis
-	Bachelor-thesis
+	Bachelorarbeit
 	\vspace{3em}
 
 	\begin{Huge}
@@ -86,15 +89,17 @@
 	
 	\mbox{}\\
 	\vspace{5em}
-	Faculty II - Mathematics and Natural Sciences\\
+	Fakultät II - Mathematik und Naturwissenschaften\\
 %	Intelligent Networks / Intelligente Netze (INET)\\
 %	Research Group of Prof. Anja Feldmann, Ph.D.\\
 	\vspace{3em}
 	Francisco Jose Manjon Cabeza Garcia\\
-	\today\\
+	{\selectlanguage{ngerman}\today}\\
+	%\today\\
 
 	\vspace{4 em}
-	Prüfer: Prof. Dr. Jörg Liesen\\
+	Erstgutachter: Prof. Dr. Jörg Liesen\\
+	Zweitgutachter: \todo{Fill out}\\
 	\vspace{-.5 ex}
 	%Betreuer: Your Supervisor\\
 \end{Large}
@@ -185,8 +190,22 @@ Berlin, den \today
 
 \newpage
 \pagestyle{plain}
-\section*{Appendix}
-\input{section/appendix}
+\begin{appendices}
+    \section{Selected ETPs}
+    \input{section/Selected_ETPs}
+    \newpage
+    
+    \section{Equal Weighted Portfolios}\label{EW_Portfolios}
+    \input{section/EW_Portfolios}
+    \newpage
+    
+    \section{Inverse Variance Portfolios}\label{IV_Portfolios}
+    \input{section/IV_Portfolios}
+    \newpage
+    
+    \section{Appendix D: Markowitz Minimum Variance Portfolios}\label{MMV_Portfolios}
+    \input{section/MMV_Portfolios}
+\end{appendices}
 
 %\newpage
 %\mbox{}

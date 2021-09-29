@@ -1,9 +1,7 @@
 import numpy as np
 import pandas as pd
 import scipy.cluster.hierarchy as sch
-
-# TODO: add logs and messages.
-# TODO: add comments.
+from scipy.linalg import solve as linsolver
 
 class MarkowitzMinimumVolatilityInstabilityAnalyses(QCAlgorithm):
 
@@ -12,25 +10,30 @@ class MarkowitzMinimumVolatilityInstabilityAnalyses(QCAlgorithm):
         # -----------------
         # Input Parameters.
         # -----------------
-        # Start date of the backtesting. Use a date one month before the first month in which a portfolio is constructed.
+        
+        # Start date of the backtesting.
         self.SetStartDate(2020, 1, 1)
         # End date of the backtesting.
         self.SetEndDate(2020, 12, 31)
         # Initial account balance.
         self.SetCash(1000000)
+        # Benchmark for backtesting.
+        self.SetBenchmark("SPY")
         
-        # Optimisation model for the portfolio construction.
-        # Options: "Equal Weight", "Inverse Variance", "Markowitz Minimum Volatility", "Hierarchical Risk Parity"
-        self.optimisationModel = "Hierarchical Risk Parity"
-        # Constrain portfolio construction to long-only portfolios.
-        # Note: if the optimisation model is Markowitz Minimum Volatility, portfolios are NEVER long-only constrained.
-        self.longOnlyBias = True
+        # Optimisation model for the portfolio construction. Available options:
+        #   - "Equal Weight"
+        #   - "Inverse Variance"
+        #   - "Markowitz Minimum Volatility"
+        #   - "Hierarchical Risk Parity"
+        self.OptimisationModel = "Markowitz Minimum Volatility"
         # Normalise the allocation vectors computed so that the weights in the portfolio sum up to 1.
         NormaliseAllocationVector = True
-        # Number of past days' data to consider for the portfolio construction. If set to 0, no override.
-        LookbackPeriodsOverride = 60
+        # Number of past days' returns data to consider for the portfolio construction.
+        LookbackPeriods = 60
         # New York time of the first day in the month at which the portfolio is rebalanced.
         RebalancingTime = "10:00"
+        # Set the first month to start trading. If set to 0, enter the first portfolio on the first day of the backtesting.
+        FirstTradingMonth = 0
         # List with the assets to consider in the portfolio.
         SelectedAssets = [
                     # Equity ETFs
@@ -62,11 +65,12 @@ class MarkowitzMinimumVolatilityInstabilityAnalyses(QCAlgorithm):
         # End of Input Parameters.
         # ------------------------
         
+        # Set the internal clock of the algorithm to the New York timezone.
         self.SetTimeZone("America/New_York")
         
         # Create a list with QC Symbol objects of the selected assets.
         QCSymbols = [Symbol.Create(asset, SecurityType.Equity, Market.USA) for asset in SelectedAssets]
-        # Set the data resolution for all instruments in the algorithm to minute resolution for the portfolio construction model to be triggered at the exact time chosen.
+        # Set the data resolution for all instruments in the algorithm to 1-minute resolution for the portfolio construction model to be triggered at the exact time chosen.
         self.UniverseSettings.Resolution = Resolution.Minute
         # Pass a custom initialiser for the instruments in the algorithm in order to adjust the leverage and the normalisation mode of each one.
         self.SetSecurityInitializer(self.CustomSecurityInitializer)
@@ -76,13 +80,10 @@ class MarkowitzMinimumVolatilityInstabilityAnalyses(QCAlgorithm):
         self.Portfolio.MarginCallModel = MarginCallModel.Null
         
         # Set the alpha model to generate constant insights of type price, upwards direction and 1 month duration.
-        self.SetAlpha(AtMonthStartAlphaModel(RebalancingTime, 0))
+        self.SetAlpha(AtMonthStartAlphaModel(RebalancingTime, FirstTradingMonth))
         
-        LookbackPeriods = int((2/3) * len(SelectedAssets)*(len(SelectedAssets) + 1))
-        if LookbackPeriodsOverride != 0:
-            LookbackPeriods = LookbackPeriodsOverride
-        # Set the portfolio construction model to the custom model PortfolioOptimisationModel with the chosen optimisation method, lookback periods direction constrain and normalisation setting.
-        self.SetPortfolioConstruction(PortfolioOptimisationModel(self.optimisationModel, LookbackPeriods, self.longOnlyBias, NormaliseAllocationVector))
+        # Set the portfolio construction model to the custom model "PortfolioOptimisationModel" with the chosen optimisation method, lookback periods and normalisation setting.
+        self.SetPortfolioConstruction(PortfolioOptimisationModel(self.OptimisationModel, LookbackPeriods, NormaliseAllocationVector))
         
         # Set the risk management model to the null model that does nothing.
         self.SetRiskManagement(NullRiskManagementModel())
@@ -90,10 +91,14 @@ class MarkowitzMinimumVolatilityInstabilityAnalyses(QCAlgorithm):
         # Set the execution model to a custom model that optimises the margin used when rebalancing.
         self.SetExecution(MarginOptimisedExecutionModel())
         
+        # Define global variables to save data generated by the portfolio optimisation method for later analyses.
+        # The covariance matrices and allocation vectors are saved as if index by symbol alphabetically sorted.
         global CovarianceMatricesExport
         CovarianceMatricesExport = dict()
         global AllocationVectorsExport
         AllocationVectorsExport = dict()
+        global TurnoverFiguresExport
+        TurnoverFiguresExport = dict()
 
     def OnData(self, data):
         ''' OnData event is the primary entry point for your algorithm. Each new data point will be pumped in here.
@@ -103,69 +108,81 @@ class MarkowitzMinimumVolatilityInstabilityAnalyses(QCAlgorithm):
         pass
         
     def CustomSecurityInitializer(self, security):
-        '''
-        Custom security initialiser to set the leverage of each security higher to allow portfolios with individual allocations higher than 2 to be simulated.
+        '''Custom security initialiser to set the leverage of each security higher to allow portfolios with individual allocations higher than 2 to be simulated.
         Moreover, the data normalisation mode is set to total return to account for ETP distributions.
         Arguments:
             security: security object of the instrument to initialise.
         '''
-        # TODO: update leverage
         security.SetLeverage(3)
         security.SetDataNormalizationMode(DataNormalizationMode.TotalReturn)
         
     def OnOrderEvent(self, orderEvent):
-        #https://www.quantconnect.com/docs/algorithm-reference/trading-and-orders#Trading-and-Orders-Tracking-Order-Events
-        #https://www.quantconnect.com/docs/algorithm-reference/reality-modelling#Reality-Modelling-Fill-Models
+        '''This method is executed every time an order is sent in order to log its details.
+        Arguments:
+            orderEvent: OrderEvent object of the new order sent.
+        '''
+        
         order = self.Transactions.GetOrderById(orderEvent.OrderId)
         if orderEvent.Status == OrderStatus.Filled: 
-            self.Log("{0}: {1}: {2}".format(self.Time, order.Type, orderEvent)) #orderEvent.OrderFee
+            self.Log("{0} - {1}: {2}".format(self.Time, order.Type, orderEvent))
         
     def OnEndOfAlgorithm(self):
+        '''This method is executed at the very end of the backtesting period in order to liquidate all open positions
+        and save the data generated by the optimisation methods in the ObjectStore.
+        '''
         
         # Close all open positions
         self.Liquidate()
         
         modelname = ""
-                
-        if self.optimisationModel == "Markowitz Minimum Volatility":
+        
+        if self.OptimisationModel == "Equal Weight":
+            modelname = "EWP"
+            
+        elif self.OptimisationModel == "Inverse Variance":
+            modelname = "IVP"
+            
+        elif self.OptimisationModel == "Markowitz Minimum Volatility":
             modelname = "MMVP"
+            
+        elif self.OptimisationModel == "Hierarchical Risk Parity":
+            modelname = "HRP"
         
-        else:
-            if self.optimisationModel == "Equal Weight":
-                modelname = "EWP"
-                
-            if self.optimisationModel == "Inverse Variance":
-                modelname = "IVP"
-        
-            if self.optimisationModel == "Hierarchical Risk Parity":
-                modelname = "HRP"
-                
-            if self.longOnlyBias:
-                modelname = modelname + " long-only"
-                
-            else:
-                modelname = modelname + " long-short"
-        
+        # If covariance matrices were generated, save them.
         if CovarianceMatricesExport:
             covmatrices = pd.DataFrame.from_dict(CovarianceMatricesExport, orient="index")
             self.ObjectStore.Save(modelname+" Covariance Matrices", covmatrices.to_json())
         
+        # If allocation vectors were generated, save them.
         if AllocationVectorsExport:
             allovectors = pd.DataFrame.from_dict(AllocationVectorsExport, orient="index")
             self.ObjectStore.Save(modelname+" Allocation Vectors", allovectors.to_json())
+            
+        # If turnover figures were generated, save them.
+        if TurnoverFiguresExport:
+            tovector = pd.DataFrame.from_dict(TurnoverFiguresExport, orient="index")
+            self.ObjectStore.Save(modelname+" Turnover", tovector.to_json())
         
 class AtMonthStartAlphaModel(AlphaModel):
+    '''Custom AlphaModel class that emits constant insights of type price, upwards direction and 1 month duration on the first day of each month at the chosen rebalancing time.
     '''
-    Custom AlphaModel class that emits constant insights of type price, upwards direction and 1 month duration on the first day of each month at the chosen rebalancing time.
     
-    '''
     def __init__(self, rebalancingTime, currentMonth=0):
+        # List of symbols for which insights are to be emitted.
         self.symbols = []
+        # Last month for which insights were emitted.
         self.lastInsightMonth = currentMonth
+        # Hour of the day at which to emit insights.
         self.rebalancingHour = int(rebalancingTime.split(":")[0])
+        # Minute of the hour at which to emit insights.
         self.rebalancingMinute = int(rebalancingTime.split(":")[1])
     
     def OnSecuritiesChanged(self, algorithm, changes):
+        '''This method is executed whenever securities are added or removed from the algorithm's universe. Update "self.symbols" accordingly if this happens.
+        Arguments:
+            algorithm: algorithm object that calls this method.
+            changes: list of changed securities.
+        '''
         
         for security in changes.AddedSecurities:
             if security.Symbol not in self.symbols:
@@ -176,6 +193,11 @@ class AtMonthStartAlphaModel(AlphaModel):
                 self.symbols.remove(security.Symbol)
                 
     def Update(self, algorithm, data):
+        '''This method is executed on every new piece of data that arrives. If it's rebalancing time, emit insights for each of the symbols in "self.symbols".
+        Arguments:
+            algorithm: algorithm object that calls this method.
+            data: new piece of data that arrived.
+        '''
         
         if len(self.symbols) > 1:
         
@@ -185,7 +207,7 @@ class AtMonthStartAlphaModel(AlphaModel):
                 # It is the first day of a new month.
                 if currentTime.hour == self.rebalancingHour and currentTime.minute == self.rebalancingMinute:
                     # New rebalancing point.
-                    algorithm.Debug("New rebalancing point.")
+                    algorithm.Log("New rebalancing point.")
                     self.lastInsightMonth = currentTime.month
                     # Emit "up" insights.
                     return Insight.Group([Insight.Price(symbol, timedelta(minutes=1), InsightDirection.Up) for symbol in self.symbols])
@@ -193,116 +215,156 @@ class AtMonthStartAlphaModel(AlphaModel):
         return []
         
 class PortfolioOptimisationModel(PortfolioConstructionModel):
+    '''PortfolioConstructionModel object that computes optimal portfolios according to the equal weight, inverse variance, Markowitz minimum variance or hierarchical risk parity methods.
+    '''
     
-    def __init__(self, optimisationModel, lookbackPeriods, longonly=False, normalise=True):
-        self.optimisationModel = optimisationModel
-        self.lookbackPeriods = lookbackPeriods
-        self.longonly = longonly
-        self.normaliseAllocationVector = normalise
+    def __init__(self, optimisationModel, lookbackPeriods, normalise=True):
+        # Optimisation model for the portfolio construction. Implemented options are:
+        #   - "Equal Weight"
+        #   - "Inverse Variance"
+        #   - "Markowitz Minimum Volatility"
+        #   - "Hierarchical Risk Parity"
+        self.OptimisationModel = optimisationModel
+        # Number of past days' returns data to consider for the portfolio construction.
+        self.LookbackPeriods = lookbackPeriods
+        # Normalise the allocation vectors computed so that the weights in the portfolio sum up to 1.
+        self.NormaliseAllocationVector = normalise
         
     def CreateTargets(self, algorithm, insights):
+        '''This method is executed every time new insights are emitted by the "AtMonthStartAlphaModel" object.
+        If new insights are emitted, compute optimal portfolio for the symbols of the insights according to the model "self.OptimisationModel".
+        Arguments:
+            algorithm: algorithm object that calls this method.
+            insights: list of insights emitted by the "AtMonthStartAlphaModel" object
+        '''
+        
         if len(insights) > 0:
-            algorithm.Debug("Computing portfolio allocation...")
+            algorithm.Log("Computing portfolio allocation...")
             
+            # Get the past returns of the symbols for which insights were received.
             returnsData = self.GetHistoricalDailyReturns(algorithm, [insight.Symbol for insight in insights])
             
-            if self.optimisationModel == "Equal Weight":
+            # Compute optimal portfolio according to the model self.OptimisationModel
+            # and return a set of targets for the MarginOptimisedExecutionModel object to rebalance the portfolio accordingly.
+            if self.OptimisationModel == "Equal Weight":
                 return self.ComputeEqualWeightPF(algorithm, returnsData)
-            
-            if self.optimisationModel == "Inverse Variance":
+                
+            elif self.OptimisationModel == "Inverse Variance":
                 return self.ComputeInverseVariancePF(algorithm, returnsData)
                 
-            if self.optimisationModel == "Markowitz Minimum Volatility":
+            if self.OptimisationModel == "Markowitz Minimum Volatility":
                 return self.ComputeMarkowitzMinVolPF(algorithm, returnsData)
                 
-            if self.optimisationModel == "Hierarchical Risk Parity":
+            if self.OptimisationModel == "Hierarchical Risk Parity":
                 return self.ComputeHRPPF(algorithm, returnsData)
             
         return []
         
-    def GetHistoricalMonthlyReturns(self, algorithm, symbols):
-        historicalReturns = dict()
-        total_return = lambda x: x.loc[x.index.max(), "close"] / x.loc[x.index.min(), "open"] - 1
-    
-        for symbol in symbols:
-            symbolReturns = algorithm.History(symbol, timedelta(days=31 * self.lookbackPeriods), Resolution.Daily).loc[symbol, ["close", "open"]]
-            symbolReturns = symbolReturns.groupby([symbolReturns.index.year, symbolReturns.index.month]).apply(total_return)
-            historicalReturns[str(symbol)] = symbolReturns.tail(self.lookbackPeriods)
-    
-        return pd.DataFrame.from_dict(historicalReturns, orient="index").sort_index()
-        
     def GetHistoricalDailyReturns(self, algorithm, symbols):
+        '''Get past data and compute past daily returns of the symbols in the "symbols" parameter.
+        Returns a pandas DataFrame with the symbol names as index sorted alphabetically and the returns of each of the "self.LookbackPeriods" days as columns.
+        Arguments:
+            algorithm: algorithm object that calls this method.
+            symbols: list of Symbol objects for which data must be retrieved.
+        '''
+        
         historicalReturns = dict()
     
         for symbol in symbols:
-            symbolReturns = algorithm.History(symbol, self.lookbackPeriods, Resolution.Daily).loc[symbol, ["close", "open"]]
+            symbolReturns = algorithm.History(symbol, self.LookbackPeriods, Resolution.Daily).loc[symbol, ["close", "open"]]
             symbolReturns = symbolReturns.apply(lambda x: x.loc["close"] / x.loc["open"] - 1, axis=1)
             historicalReturns[str(symbol)] = symbolReturns
     
         return pd.DataFrame.from_dict(historicalReturns, orient="index").sort_index()
         
     def ComputeEqualWeightPF(self, algorithm, returnsData):
+        '''Compute equal weight portfolio and send target allocation to the "AtMonthStartAlphaModel" object.
+        Arguments:
+            algorithm: algorithm object that calls this method.
+            returnsData: pandas DataFrame with past daily return data generated by the "self.GetHistoricalDailyReturns" method.
+                         This parameter is necessary to know which assets the portfolio must contain.
+        '''
         
-        targets = []
+        numAssets = len(returnsData)
+        targets = [PortfolioTarget.Percent(algorithm, symbol, 1./numAssets) for symbol in returnsData.index]
         
-        weights = returnsData.mean(axis=1).apply(np.sign)
-        
-        if self.longonly:
-            weights = weights.apply(lambda x: 1)
-        
-        weights = weights / weights.sum()
-        targets = [PortfolioTarget.Percent(algorithm, symbol, weights[symbol]) for symbol in weights.index]
-            
-        # TODO: update to save pandas, not list of targets
-        AllocationVectorsExport[algorithm.Time] = weights
+        # Save allocation vector.
+        AllocationVectorsExport[algorithm.Time] = np.full(numAssets, 1./numAssets)
             
         return targets
     
     def ComputeInverseVariancePF(self, algorithm, returnsData):
+        '''Compute inverse variance portfolio and send target allocation to the "AtMonthStartAlphaModel" object.
         
-        weights = 1 / returnsData.var(axis=1)
+        Arguments:
+            algorithm: algorithm object that calls this method.
+            returnsData: pandas DataFrame with past daily return data generated by the "self.GetHistoricalDailyReturns" method.
+        '''
         
-        if not self.longonly:
-            bias = returnsData.mean(axis=1).apply(np.sign)
-            weights = np.multiply(weights, bias)
-            
-        if self.normaliseAllocationVector:
+        varmatrix = returnsData.var(axis=1)
+        weights = 1 / varmatrix
+        if self.NormaliseAllocationVector:
             weights = weights / weights.sum()
             
         targets = [PortfolioTarget.Percent(algorithm, symbol, weights[symbol]) for symbol in weights.index]
         
+        # Save allocation vector.
         AllocationVectorsExport[algorithm.Time] = weights
+        # Save variance matrix as covariance matrix. All assets assumed to be uncorrelated.
+        CovarianceMatricesExport[algorithm.Time] = varmatrix.to_numpy()
             
         return targets
     
     def ComputeMarkowitzMinVolPF(self, algorithm, returnsData):
-        covmatrix = returnsData.T.cov()
+        '''Compute Markowitz minimum variance portfolio and send target allocation to the "AtMonthStartAlphaModel" object.
         
-        # TODO: save condition numbers.
-        #algorithm.Debug(np.linalg.cond(covmatrix))
+        Arguments:
+            algorithm: algorithm object that calls this method.
+            returnsData: pandas DataFrame with past daily return data generated by the "self.GetHistoricalDailyReturns" method.
+        '''
+        
+        # "returnsData" contains the returns of each symbol in rows.
+        # pandas cov() method compute the covariance of the columns.
+        covmatrix = returnsData.T.cov()
         numAssets = covmatrix.shape[0]
         
-        #covInv = np.linalg.inv(covmatrix)
-        #weights = np.dot(covInv, np.ones(numAssets))
-        weights = np.linalg.solve(covmatrix, np.ones(numAssets))
-        weights = weights / weights.sum()
+        # Try to solve the linear system using the Cholesky decomposition of the covariance matrix.
+        try:
+            weights = linsolver(covmatrix, np.ones(numAssets), assume_a="pos")
+            
+        # If the Cholesky decomposition fails, the covariance matrix does not have full rank.
+        # Solve the linear system with the least-squares method.
+        except:
+            algorithm.Log("The covariance matrix is singular. Solve linear system with the least-squares method.")
+            weights, res, rnk, s = np.linalg.lstsq(covmatrix, np.ones(numAssets))
+            
+        if self.NormaliseAllocationVector:
+            weights = weights / weights.sum()
         
+        # Generate Target objects.
         targets = []
         i = 0
         for symbol in returnsData.index:
             targets.append(PortfolioTarget.Percent(algorithm, symbol, weights[i]))
             i = i + 1
             
-        # TODO: save weights with columns names of the symbols.
+        # Save allocation vector.
         AllocationVectorsExport[algorithm.Time] = weights
+        # Save covariance matrix as vector.
         CovarianceMatricesExport[algorithm.Time] = covmatrix.to_numpy().reshape(numAssets**2)
             
         return targets
     
     def ComputeHRPPF(self, algorithm, returnsData):
-        # Code from Advances in Financial Machine Learning, Marcos López de Prado.
-        # Small changes to the code from pages 240-242 applied to fit QuantConnect's API and the general implementation structure of the program.
-    
+        '''Compute hierarchical risk parity portfolio and send target allocation to the "AtMonthStartAlphaModel" object.
+        Code from Advances in Financial Machine Learning, Marcos López de Prado.
+        Small changes to the code from pages 240-242 applied to fit QuantConnect's API and the general implementation structure of the program.
+        
+        Arguments:
+            algorithm: algorithm object that calls this method.
+            returnsData: pandas DataFrame with past daily return data generated by the "self.GetHistoricalDailyReturns" method.
+        '''
+        
         # pandas cov() and corr() method compute the covariance and correlation of the columns.
         cov, corr = returnsData.T.cov(), returnsData.T.corr()
     
@@ -356,38 +418,51 @@ class PortfolioOptimisationModel(PortfolioConstructionModel):
                 alpha = 1 - cVar0 / (cVar0+cVar1)
                 w[cItems0] *= alpha # Weight 1
                 w[cItems1] *= 1 - alpha
-                
-        if not self.longonly:
-            bias = returnsData.mean(axis=1).apply(np.sign)
-            w = np.multiply(w, bias)
         
-        if self.normaliseAllocationVector:
+        if self.NormaliseAllocationVector:
             w = w / w.sum()
             
         targets = [PortfolioTarget.Percent(algorithm, symbol, w[symbol]) for symbol in w.index]
         
+        # Save allocation vector.
         AllocationVectorsExport[algorithm.Time] = w
         
         return targets
         
 class MarginOptimisedExecutionModel(ExecutionModel):
+    '''Custom ExecutionModel class that optimises used margin on rebalancing by first rebalancing positions which will be reduced
+    and then rebalancing positions which will increased.
+    '''
     
     def Execute(self, algorithm, targets):
         
-        algorithm.Debug("Rebalancing portfolio...")
-        # TODO: track turnover
-        
-        orderQuantities = []
-        
-        for target in targets:
-            open_quantity = sum([x.Quantity for x in algorithm.Transactions.GetOpenOrders(target.Symbol)])
-            existing = algorithm.Securities[target.Symbol].Holdings.Quantity + open_quantity
-            if target.Quantity - existing != 0:
-                orderQuantities.append((target.Symbol, target.Quantity - existing))
+        # If there are targets, start rebalancing.
+        if len(targets) > 0:
             
-        sortedOrderQuantities = sorted(orderQuantities, key=lambda target: target[1])
-        
-        for (symbol, quantity) in sortedOrderQuantities:
-            algorithm.MarketOrder(symbol, quantity)
-        
+            algorithm.Log("Rebalancing portfolio...")
+            
+            # Compute the change in allocation to each symbol according to the new targets.
+            orderQuantities = []
+            
+            for target in targets:
+                open_quantity = sum([x.Quantity for x in algorithm.Transactions.GetOpenOrders(target.Symbol)])
+                existing = algorithm.Securities[target.Symbol].Holdings.Quantity + open_quantity
+                if target.Quantity - existing != 0:
+                    orderQuantities.append((target.Symbol, target.Quantity - existing))
+                
+            # Sort the changes in allocation.
+            sortedOrderQuantities = sorted(orderQuantities, key=lambda target: target[1])
+            
+            # Save the absolute change in allocation to compute the period's turnover.
+            periodTurnover = 0
+            
+            # Rebalance positions by first tackling the ones that are reduced and the the ones that need to be increased.
+            for (symbol, quantity) in sortedOrderQuantities:
+                algorithm.MarketOrder(symbol, quantity)
+                # Save the absolute change in allocation.
+                periodTurnover = periodTurnover + np.abs(quantity)
+                
+            # Compute and save the relative change in allocation (turnover).
+            TurnoverFiguresExport[algorithm.Time] = periodTurnover / algorithm.Portfolio.TotalPortfolioValue
+            
         pass
