@@ -22,9 +22,18 @@
 \usepackage[export]{adjustbox}
 \usepackage{amsmath}
 \usepackage{amssymb}
+% For appendices.
 \usepackage[toc,page]{appendix}
 \usepackage[autostyle]{csquotes}
 \usepackage{tabularx}
+% For vector of ones with mathbb style.
+\usepackage{dsfont}
+% For algorithms
+\usepackage[boxed,ruled,linesnumbered]{algorithm2e}
+% For Python code in appendix
+\usepackage{minted}
+% For matrix with labels.
+\usepackage{blkarray}
 
 %
 %\theoremstyle{plain}
@@ -33,10 +42,12 @@
 \newtheorem{definition}[theorem]{Definition}
 %\theoremstyle{remark}
 \newtheorem{remark}[theorem]{Remark}
+\newtheorem{example}[theorem]{Example}
 %\newtheorem{proof}[theorem]{Proof}
 %\newtheorem{corollary}{Corollary}[theorem]
 %\newtheorem{lemma}[theorem]{Lemma}
 %
+\interfootnotelinepenalty=10000
 
 \topmargin  0.0cm
 \headheight 0.0cm
@@ -99,7 +110,7 @@
 
 	\vspace{4 em}
 	Erstgutachter: Prof. Dr. Jörg Liesen\\
-	Zweitgutachter: \todo{Fill out}\\
+	Zweitgutachter: Dr. Michael Karow \\
 	\vspace{-.5 ex}
 	%Betreuer: Your Supervisor\\
 \end{Large}
@@ -148,7 +159,7 @@ Berlin, den \today
 
 \mbox{}
 \section*{Zusammenfassung}
-\input{section/abstract-de.tex}
+\input{section/Zusammenfassung}
 \newpage
 
 \mbox{}
@@ -156,7 +167,7 @@ Berlin, den \today
 
 \mbox{}
 \section*{Abstract}
-\input{section/abstract.tex}
+\input{section/Abstract}
 \newpage
 
 \mbox{}
@@ -168,20 +179,20 @@ Berlin, den \today
 \newpage
 
 \pagestyle{plain}
-\section{Introduction}
-\input{section/introduction.tex}
+\section{Introduction}\label{section:Introduction}
+\input{section/Introduction}
 \newpage
 
-\section{Markowitz's Optimal Portfolio}
-\input{section/markowitzoptimalportfolio.tex}
+\section{The Asset Allocation Problem}\label{section:TheAssetAllocationProblem}
+\input{section/Asset_Allocation_Problem}
 \newpage
 
-\section{Improving Markowitz's Portfolio Model}
-\input{section/improvingmarkowitzportfoliomodel.tex}
+\section{Improving Markowitz's Portfolio Optimisation Model}\label{section:ImprovingMarkowitzsPortfolioOptimisationModel}
+\input{section/Improving_Markowitzs_Portfolio_Model}
 \newpage
 
-\section{Conclusion}
-\input{section/conclusion.tex}
+\section{Conclusion}\label{section:Conclusion}
+\input{section/Conclusion}
 \newpage
 
 \newpage
@@ -191,20 +202,31 @@ Berlin, den \today
 \newpage
 \pagestyle{plain}
 \begin{appendices}
-    \section{Selected ETPs}
-    \input{section/Selected_ETPs}
+    \section{Practical Implementation Framework}\label{appendix:PracticalImplementationFramework}
+    \input{section/Practical_Implementation_Framework}
     \newpage
     
-    \section{Equal Weighted Portfolios}\label{EW_Portfolios}
+    \section{QuantConnect Code}\label{appendix:QuantConnectCode}
+    \input{section/QC_Code}
+    
+    \section{Equal Weighted Portfolios}\label{appendix:EWPortfolios}
     \input{section/EW_Portfolios}
     \newpage
     
-    \section{Inverse Variance Portfolios}\label{IV_Portfolios}
+    \section{Inverse Variance Portfolios}\label{appendix:IVPortfolios}
     \input{section/IV_Portfolios}
     \newpage
     
-    \section{Appendix D: Markowitz Minimum Variance Portfolios}\label{MMV_Portfolios}
+    \section{Markowitz Minimum Variance Portfolios}\label{appendix:MMVPortfolios}
     \input{section/MMV_Portfolios}
+    
+    \section{Hierarchical Risk Parity Portfolios}\label{appendix:HRPPortfolios}
+    \input{section/HRP_Portfolios}
+    
+    \section{K-Means Algorithm}\label{appendix:kMeansAlgorithm}
+    \input{section/K_Means_Algorithm}
+    
+    
 \end{appendices}
 
 %\newpage
