@@ -1,6 +1,8 @@
 % - Why is asset allocation important? Short description of the asset allocation optimisation problem.
 % - Short history of Markowitz's Modern Portfolio Theory.
 
+In this section, we provide a general definition of the asset allocation problem, and define two naive solutions as well as Markowitz's solution to this problem. Finally, we present the results of simulating these three allocation methods during the year 2020.
+
 Assume an investor with a total wealth of $\$x \in \mathbb{R}_{\geq 0}$, i.e. a total wealth of $x$ U.S. dollars. Let $A := \{a_1, \dots, a_N \}$ be the set of assets, which the investor can trade and let $a_i$ be the real-valued random variable representing the return of asset $i = \{ 1, \dots, N \}$. By asset, we understand anything with a price that can be bought and sold so as to profit from price differences across time, i.e. returns. However, here we will focus on the most widely used investment assets: for example cash, real-estate objects, bonds, stocks, commodities and funds.
 
 \begin{definition}
@@ -127,7 +129,8 @@ One of the most important questions that an investor faces is how much of their 
     \end{align*}
     
     It is important to mention that the portfolio computed as $w_P = \alpha \Sigma^{-1} \mu$ might not add up to $1$, and we can understand the parameter $\alpha$ as a factor for the optimal leverage , i.e. if the investor should borrow money to invest in the portfolio $P$ ($\sum_{i=1}^N w_{Pi} > 1$), invest all its wealth without borrowing ($\sum_{i=1}^N w_{Pi} = 1$) or only invest a part of its total wealth in the portfolio $P$ ($\sum_{i=1}^N w_{Pi} < 1$).
-    \todo[inline]{Mention normality misconception}
+    
+    A common misconception when talking about Markowitz's optimal portfolios is that their computation assumes that returns are normally distributed. This is however wrong, as we have not used this assumption yet, and will not use it later. However, it is true that Markowitz's optimal portfolios are utility maximising only if the utility function of the investor is dependent on first and second order movements of returns, i.e. dependent on mean return and variance of returns.
     
     The main critique point of this optimisation problem is the high sensitivity to small changes in the expected returns vector $\mu_P$, which, as mentioned before, is defined as the vector of sample mean of past $T$-periods asset returns. This leads to significantly different portfolio allocations even with an unchanged sample covariance matrix \cite{michaudreturnsstability}, which in turn leads to a high portfolio turn-over and to concentrated portfolios, especially when correlations rise. Because returns are difficult to forecast accurately enough to keep the sensitivity within certain limits, some asset managers abstain from using them as input parameter. Portfolio allocations are then computed on the basis of the sample covariance matrix only, which is a risk parameter, hence the name \textit{risk-based} asset allocation. In the case of Markowitz's portfolio optimisation model, risk-based optimal portfolios correspond to minimum volatility portfolios.
     
@@ -205,7 +208,7 @@ One of the most important questions that an investor faces is how much of their 
         The vectors with the optimal portfolios computed using these 2 naive methods can be found in appendices \ref{appendix:EWPortfolios} and \ref{appendix:IVPortfolios}. In figure \ref{fig:ivp_allocation_plot}, a visual representation of the target allocation of all 20 assets in the IVP over the backtesting period is presented. Most of the portfolio's wealth is allocated to ISTB (iShares Core 1-5 Year USD Bond ETF) and IAGG (iShares Core International Aggregate Bond ETF). The allocation to the first drops at the start of the COVID-19 crisis, while the allocation of the second rises. The allocation to IMTB (iShares 5-10 Year USD Bond ETF) rises after the start of the COVID-19 crisis. For the rest of assets the allocation remains relatively stable over the whole backtesting period. Finally, the high allocation to fixed income ETFs is not surprising, because they tend to show lower variance of returns, while the allocation to equity, including real-estate, and commodity ETPs remains low due to the higher variance of returns that they tend to show.
         
         % Data
-        \begin{figure}[h!]
+        \begin{figure}[h]
             \centering
             \includegraphics[width=1.15\textwidth]{bilder/IVP_allocation_plot.png}
             \caption{IVP Target Allocation over Time}
@@ -217,7 +220,7 @@ One of the most important questions that an investor faces is how much of their 
         Figure \ref{fig:nHHI_EWP_and_IVP} shows the evolution of the nHHI of the 2 naive portfolio allocation models described above. The nHHI of the equal weight portfolios is low and stays the same over time, as expected. In the case of IVP, the nHHI rises with the start of the COVID-19 crisis to latter more than halve, mostly because of a reduction in the allocation to ISTB as explained previously.
         
         % Data
-        \begin{figure}[h!]
+        \begin{figure}[h]
             \centering
             \includegraphics[width=1.15\textwidth]{bilder/nHHI_EWP_and_IVP.png}
             \caption{nHHI over Time}
@@ -227,7 +230,7 @@ One of the most important questions that an investor faces is how much of their 
         Table \ref{tab:ewp_ivp_sharpe_turnover} presents the risk-adjusted returns and turnover of both naive strategies. Inverse variance portfolios achieve a Sharpe ratio almost three times higher than the Sharpe ratio of the equal weight portfolio. The turnover of the IVP is also higher than the turnover of the EWP by a factor of 2.
         
         % Data
-        \begin{table}[h!]
+        \begin{table}[h]
             \centering
             \begin{tabular}{crr}
              \textbf{Portfolio Optimisation Method} & \textbf{Sharpe Ratio} & \textbf{Turnover} \\
@@ -244,7 +247,7 @@ One of the most important questions that an investor faces is how much of their 
     	
     	For the practical implementation, we use SciPy's linear system solver which can take certain structural properties of the quadratic matrix that defines the linear system, and use that information to select the method with which to solve the linear system. We take advantage of the fact that the sample covariance matrix is always symmetric and positive-semidefinite. In case the sample covariance matrix has full rank, then it is even positive-definte. Hence, we first assume the sample covariance matrix to be positive-definite, and use this structural property as input for the \texttt{scipy.linalg.solve} method. As a result, the solver will try to solve the linear equation system in definition \ref{definition:MinimumVolatilityPortfolio} using the \textit{LAPACK ?POSV linear equation routine} \cite{scipylinalgsolve}, which tries to solve linear equation systems using the Cholesky decomposition \cite{lapackposv}. In case the method fails to compute a solution to the linear system, then we know that the sample covariance matrix does not have full rank, in which case the practical implementation turns to \texttt{numpy.linalg.lstsq}, which is a NumPy method to compute the least-squares solution to a linear matrix equation \cite{lstsqnumpy}. However, all the covariance matrices computed during the backtesting period have full rank, and the least-squares solver wasn't used to compute any of the minimum variance portfolios presented here.
     	
-    	\begin{theorem}[Cholesky Decomposition]\todo[inline]{add source. Liesens Skript?}
+    	\begin{theorem}[Cholesky Decomposition]\todo[inline]{Citing Liesens lecture notes ok?}
     		Let $A \in \mathbb{C}^{N \times N}$ be a symmetric positive-definite matrix, then there exists a uniquely determined lower triangular matrix $L \in \mathbb{C}^{N \times N}$ with positive diagonal elements, such that
     		\begin{align}
     			A = L L^H
@@ -254,7 +257,7 @@ One of the most important questions that an investor faces is how much of their 
     	Figure \ref{fig:MMVP_allocation_plot} shows the evolution of allocations in Markowitz minimum volatility portfolios over time. The changes in allocation are clearly more pronounced than in the case of IVPs (see figure \ref{fig:ivp_allocation_plot}), specially around the start of the COVID-19 crisis when correlations as well as the variance of returns rose and all asset classes suffered negative returns.
         
         % Data
-        \begin{figure}[h!]
+        \begin{figure}[h]
             \centering
             \includegraphics[width=1.15\textwidth]{bilder/MMVP_allocation_plot.png}
             \caption{MMVP Target Allocation over Time}
@@ -264,7 +267,7 @@ One of the most important questions that an investor faces is how much of their 
         The concentration of MMVPs measured by the nHHI remains however lower than in IVPs over the whole backtesting period as figure \ref{fig:nHHI_EWP_IVP_MMVP} shows. Nevertheless, a drop in concentration can be observed following the start of the COVID-19 crisis.
         
         % Data
-        \begin{figure}[h!]
+        \begin{figure}[h]
             \centering
             \includegraphics[width=1.15\textwidth]{bilder/nHHI_EWP_IVP_MMVP.png}
             \caption{nHHIn over Time}
@@ -274,7 +277,7 @@ One of the most important questions that an investor faces is how much of their 
         With respect to risk-adjusted returns, MMVPs deliver significantly worse results than both naive allocation methods. The Sharpe ratio of Markowitz's strategy is even negative, i.e. MMVPs fail to generate positive returns during the backtesting period. Moreover, the turnover is also significantly higher than in the case of both naive portfolio optimisation models.
         
         % Data
-        \begin{table}[h!]
+        \begin{table}[h]
             \centering
             \begin{tabular}{crr}
              \textbf{Portfolio Optimisation Method} & \textbf{Sharpe Ratio} & \textbf{Turnover} \\
@@ -294,7 +297,7 @@ One of the most important questions that an investor faces is how much of their 
     		
     		To picture the source of instability in the optimisation problem presented in definition \ref{definition:MinimumVolatilityPortfolio}, we can define a forward error bound for its solution based on the condition number of the matrix that defines it, i.e. the sample covariance matrix.
     		
-    		\begin{definition}[Condition Number of a Matrix]\todo[inline]{cite Liesen ok?}
+    		\begin{definition}[Condition Number of a Matrix]\todo[inline]{Citing Liesens lecture notes ok?}
     		    If $A \in \mathbb{C}^{N \times N}$ is non-singular, and $\| \cdot \|$ is a norm on $\mathbb{C}^{N \times N}$, then
     		    \begin{align*}
     		        \kappa(A) := \| A \| \| A^{-1} \|
@@ -304,7 +307,7 @@ One of the most important questions that an investor faces is how much of their 
     		
     		For the results presented here, we compute the condition number with respect to the spectral norm, i.e. with respect to the matrix norm induced by the Euclidean vector norm.
     		
-    		\begin{theorem}[Residual-based forward Error Bound]\todo[inline]{cite Liesen ok?}
+    		\begin{theorem}[Residual-based forward Error Bound]\todo[inline]{Citing Liesens lecture notes ok?}
     			Let $A \in \mathbb{C}^{N \times N}$ be non-singular, $x \in \mathbb{C}^N \setminus \{ 0 \}$ and $b = Ax$. Then for every $\Tilde{x} \in \mathbb{C}^N$ we have
     			\begin{align*}
     				\frac{\| \Tilde{x} - x \|_2}{\| x \|_2} \leq \kappa(A) \frac{\| r \|_2}{\| b \|_2}
@@ -403,3 +406,5 @@ One of the most important questions that an investor faces is how much of their 
     		    \caption{Turnover of EWP, IVP and MMVP over The Backtesting Period}
     		    \label{fig:Turnover_over_time_EWP_IVP_MMVP}
     		\end{figure}
+    		
+    	We conclude that the computation of Markowitz's minimum volatility portfolios is significantly sensitive to the condition number of the input covariance matrix. Moreover, Markowitz's minimum volatility portfolios fail to perform better than the two naive portfolio allocation models defined above.

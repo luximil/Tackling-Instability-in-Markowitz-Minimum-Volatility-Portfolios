@@ -1,5 +1,4 @@
 % for example, the time period of the backtest, the rebalancing frequency, the data resolution, transaction costs, etc.
-\todo[inline]{Review this appendix}
     
 To show the problems of Markowitz's minimum volatility portfolios in real applications, and compare these portfolios to the portfolios computed using other methods and techniques, each of the techniques described here is implemented for a portfolio of exchange traded products (ETPs) representing 4 assets classes: equities, fixed income, real estate and commodities. We use the QuantConnect platform \cite{qcwebsite} for the implementation and as the data source. This platform and its API allow us to perform backtests with one-minute resolution data. A backtest is nothing else than a simulation of a portfolio with past data to see how it would have behaved, if we had hold it during that past period considered in the backtest. With one-minute resolution data, we have price data that is sampled once per minute. This allows us to model the changes in portfolio value as well as the entry and closing price of orders accurately considering the fact that the holding period is at least one month.
 
