@@ -1,15 +1,15 @@
 %\textit{In this section, I will present and analyse 4 different approached to improve the stability of optimal portfolios. I will keep the description of the first 3 methods short. However, I don't want to remove them completely because I would like to compare the results of those 3 "simpler" methods to the "more complex" Hierarchical Risk Parity method.}
 
-In this section, we present two methods that try to improve the stability of Markowitz's minimum volatility portfolios. The first method, called covariance matrix shrinking, tries to tackle instability by reducing noise in the sample covariance matrix: if the input covariance matrix does not change dramatically across time, then the resulting optimal portfolio won't change dramatically across time either. The second method, called hierarchical risk parity, is an intermediate optimisation method between Markowitz's minimum variance portfolio and the inverse variance portfolio, and was developed by López de Prado: instead of considering stochastic dependency between the returns of different assets via their covariances directly, assets are classified in clusters according to their correlation first, and then wealth is allocated across the mentioned clusters so that they contribute to the total portfolio risk in equal proportions.
+In this section, we present two methods that try to improve the stability of Markowitz's minimum volatility portfolios. The first method, called covariance matrix shrinking, tries to tackle instability by reducing noise in the sample covariance matrix: if the input covariance matrix does not change dramatically across time, then the resulting optimal portfolio won't change dramatically across time either. The second method, called hierarchical risk parity, is an intermediate optimisation method between Markowitz's minimum variance portfolio and the inverse variance portfolio, and was developed by López de Prado: instead of considering stochastic dependency between the returns of different assets via their covariances directly, assets are first classified in clusters according to their correlation, and then wealth is allocated across the mentioned clusters so that they contribute to the total portfolio risk in equal proportions.
 
-\subsection{Covariance Matrix Shrinking}
+\subsection{Covariance Matrix Shrinking}\label{section:CovarianceMatrixShrinking}
     %\textit{This method tries to improve stability by reducing noise in the sample covariance matrix. It is easy to implement and I believe it is also to interpret by analysing the condition number of the shrunk covariance matrix.}
 	
 	In Markowitz's minimum volatility portfolio construction method, the only input variable that we have is the covariance matrix of asset returns. Hence, the covariance matrix is the only source of instability and errors in the process of portfolio optimisation for this method. We have already shown this in our practical implementation in section \ref{section:MarkowitzsCurse}.
 	
 	In section \ref{section:MarkowitzPracticalImplementation}, we have used the sample covariance matrix computed using NumPy's \texttt{.cov()} method applied to the matrix containing the time-series of past returns of each of the $N$ investable assets. This method computes the unbiased sample covariance matrix of the past returns' time-series. Hence, the most important parameter for the covariance matrix estimation is the number of past periods returns in our time-series.
 	
-	In order to get a covariance matrix with full-rank, we need more past returns' observations than investable assets (even though this does not guarantee invertibility). This is not a problem in our practical implementation, because we consider a relatively small set of investable assets. Nevertheless, one can think of asset managers constructing portfolios using a way bigger set of investable assets, for example equal to the S\&P500 index, that contains almost 500 companies. For them, having enough past returns' observations is not necessarily a simple condition to fulfil for all investable assets. Table \ref{tab:tvaluetradeoff} summarises the advantages and disadvantages of choosing a low and a high number of past returns' observations to estimate the covariance matrix of asset returns irrespective of the value of $N$.
+	In order to get a covariance matrix with full-rank, we need more past returns' observations than investable assets (even though this does not guarantee invertibility). This is not a problem in our practical implementation, because we consider a relatively small set of investable assets. Nevertheless, one can think of asset managers constructing portfolios using a way bigger set of investable assets, for example equal to the S\&P 500 index, that contains almost 500 companies, or the Norges Bank Investment Management, which manages a portfolio with holdings in over 9000 companies, as we mentioned before. For them, having enough past return's observations is not necessarily a simple condition to fulfil for all investable assets. Table \ref{tab:tvaluetradeoff} summarises the advantages and disadvantages of choosing a low and a high number of past returns' observations to estimate the covariance matrix of asset returns irrespective of the value of $N$.
 	
 %	\begin{table}[h!]
 %	    \centering
@@ -36,14 +36,14 @@ In this section, we present two methods that try to improve the stability of Mar
 	    \label{tab:tvaluetradeoff}
     \end{table} 
 	
-	On the one hand, we can choose a low number of past returns' observations to construct our covariance matrix. Doing this will result in covariance matrices that are more volatile, i.e. do change a lot across time. The estimation will be more sensitive to changes in market regimes and changes in asset returns' relationships, but also to noise, which will lead to more unstable portfolios and to higher portfolio turnover across time. On the other hand, we can also choose a high number of past returns' observations to construct our covariance matrix. This will help to get covariance matrices that are more stable across time, producing optimal portfolios that are also more stable across time and hence reducing turnover. However, this portfolios will also be more inelastic to changes in market regimes and changes in asset returns' relationships. As a practical example, one can think about the changes in performance across the different equity sectors during a business cycle: some sectors like consumer discretionary (e.g. companies selling luxury goods or travel) tend to perform better than other sectors during periods of low unemployment and high growth, because people tend to be in a better financial situation to afford that kind of purchases, meanwhile other sectors like consumer staples (e.g. companies selling basic products like rice, bread, toilet paper, tooth paste, etc.) tend to perform better than other sectors during periods of high unemployment and low growth, when people cut off unnecessary expending and these companies profit from the fact that they sell products that are necessary for our daily life. Investors would like to get optimal portfolios that react to those changes in business cycles in order to profit from the out-performance of some asset classes and sectors, while protecting their portfolios from the under-performance of some other asset classes and sectors. Moreover, optimal portfolios constructed on the noise abundant in financial time-series should be avoided, so as to reduce turnover.
+	On the one hand, we can choose a low number of past return's observations to construct our covariance matrix. Doing this will result in covariance matrices that are more volatile, i.e. do change a lot across time. The estimation will be more sensitive to changes in market regimes and changes in asset returns' relationships, but also to noise, which will lead to more unstable portfolios and to higher portfolio turnover across time. On the other hand, we can also choose a high number of past returns' observations to construct our covariance matrix. This will help to get covariance matrices that are more stable across time, producing optimal portfolios that are also more stable across time and hence reducing turnover. However, this portfolios will also be more inelastic to changes in market regimes and changes in asset returns' relationships. As a practical example, one can think about the changes in performance across the different equity sectors during a business cycle: some sectors like consumer discretionary (e.g. companies selling luxury goods or travel) tend to perform better than other sectors during periods of low unemployment and high growth, because people tend to be in a better financial situation to afford that kind of purchases, meanwhile other sectors like consumer staples (e.g. companies selling basic products like rice, bread, toilet paper, tooth paste, etc.) tend to perform better than other sectors during periods of high unemployment and low growth, when people cut off unnecessary spending and these companies profit from the fact that they sell products that are necessary for our daily life. Investors would like to get optimal portfolios that react to those changes in business cycles in order to profit from the out-performance of some asset classes and sectors, while protecting their portfolios from the under-performance of some other asset classes and sectors. Moreover, optimal portfolios constructed on the noise abundant in financial time-series should be avoided, so as to reduce turnover at each rebalancing point.
 	
 	Optimising this trade-off is the objective of the covariance matrix shrinkage methods, even though they do not optimise the value of the parameter $T$ directly.
 	
 	\subsubsection{Ledoit and Wolf}\label{section:LedoitWolf}
-	    Ledoit and Wolf propose using a convex combination of the sample covariance matrix and a structured estimator, i.e. some matrix containing little noise and which is estimated with high bias. The idea is to reduce the noise contained in the sample covariance matrix by compensating positive and negative error that tends to be contained in its highest entries in absolute value. These high-absolute-valued entries of the covariance matrix tend to be high-absolute-valued mostly because of noise and not because the covariance of the corresponding asset returns' time-series is truly high, as argued in \cite{michaudreturnsstability}.
+	    Ledoit and Wolf propose using a convex combination of the sample covariance matrix and a structured estimator, i.e. some matrix containing little noise and which is estimated with high bias. The idea is to reduce the noise contained in the sample covariance matrix by compensating positive and negative error that tends to be contained in its highest entries in absolute value. These high-absolute-valued entries of the covariance matrix tend to be high-absolute-valued mostly because of noise and not because the covariance between the corresponding asset return's time-series is truly high, as argued in \cite{ledoit} (page 2).
     	
-    	\begin{definition}[Shrunk Covariance Matrix \cite{ledoit}]\label{definition:ShrunkCovarianceMatrix}
+    	\begin{definition}[Shrunk Covariance Matrix. Page 6, \cite{ledoit}]\label{definition:ShrunkCovarianceMatrix}
     	    Let $\Sigma \in \mathbb{R}^{N \times N}$ be a sample covariance matrix and $F \in \mathbb{R}^{N \times N}$ some other matrix, also called \textbf{shrinkage target}. The \textbf{shrunk covariance matrix} is defined as
     	    \begin{align*}
     	        \Sigma_{shrunk} := \delta F + (1-\delta) \Sigma,
@@ -53,9 +53,9 @@ In this section, we present two methods that try to improve the stability of Mar
     	
     	In definition \ref{definition:ShrunkCovarianceMatrix}, we have 2 parameters apart from the sample covariance matrix $\Sigma$ that we need to further specify: the shrinkage target and the shrinkage constant.
     	
-    	For the first, the shrinkage target, we need some estimator that can be computed using few parameters, i.e. a structured estimator, and that also contains important information about the measure that we are trying to estimate, i.e. the stochastic dependency between the random variables of the asset returns. In \cite{ledoit2003}, the authors propose using the single-factor matrix of Sharpe as the shrinkage target, which is a single-index asset pricing model (see \cite{sharpesim} for more details). However, in \cite{ledoit}, the same authors propose a simpler estimator as shrinkage target.
+    	For the first, the shrinkage target, we need some estimator that can be computed using few parameters, i.e. a structured estimator, and that also contains important information about the measure that we are trying to estimate, i.e. the stochastic dependency between the random variables of the asset returns. In \cite{ledoit2003} (page 5), the authors propose using the single-factor matrix of Sharpe as the shrinkage target, which is a single-index asset pricing model (see \cite{sharpesim} and \cite{ledoit2003} page 5 for more details). However, in \cite{ledoit} (page 6), the same authors propose a simpler estimator as shrinkage target.
     	
-    	\begin{definition}[Constant Correlation Model \cite{ledoit}]
+    	\begin{definition}[Constant Correlation Model. Page 12, \cite{ledoit}]\label{definition:ConstantCorrelationModel}
     	    Let $\Sigma = [\sigma_{i,j}] \in \mathbb{R}^{N \times N}$ be the sample covariance matrix, then the \textbf{sample constant correlation matrix $F_{\Sigma} = [f_{i,j}] \in \mathbb{R}^{N \times N}$ corresponding to the sample covariance matrix $\Sigma$} is defined as
     	    \begin{align*}
     	        f_{i,j} := \begin{cases}
@@ -70,12 +70,12 @@ In this section, we present two methods that try to improve the stability of Mar
     	    is the average sample correlation.
     	\end{definition}
     	
-    	Ledoit and Wolf argue in \cite{ledoit} that the constant correlation model gives comparable performance while being easier to implement than the single-factor matrix model of Sharpe. However, they also mention that the constant correlation model is not suited for portfolio construction if the set of investable assets contains assets from different classes, for example fixed-income and equities, because it assumes that all pairwise correlations are treated equal for the computation of the average sample correlation $r$. From an economic perspective, this makes sense because the returns of different asset classes can be driven by very different factors: for example, while the stock returns of technology companies are often driven by their margins and customer base growth, the bond returns of the same companies are rather driven by the liquidity of their balance sheet. Nevertheless, we consider this shrinkage target in our practical implementation, because our backtesting period is marked by the market-stress caused by the COVID-19 crisis, and the asset returns across the different asset classes during this kind of periods tend to be driven by macroeconomic factors that affect all of them relatively equally.
+    	Ledoit and Wolf argue in \cite{ledoit} (page 6) that the constant correlation model gives comparable performance while being easier to implement than the single-factor matrix model of Sharpe. However, they also mention that the constant correlation model is not suited for portfolio construction if the set of investable assets contains assets from different classes, for example fixed-income and equities, because it assumes that all pairwise correlations are treated equal for the computation of the average sample correlation $r$. From an economic perspective, this makes sense because the returns of different asset classes can be driven by very different factors. For example, while the stock returns of technology companies are often driven by their margins and customer base growth, the bond returns of the same companies are rather driven by the liquidity of their balance sheet (that is, how much cash is and will be available to the pay the coupons and pay the principal back). Nevertheless, we consider this shrinkage target in our practical implementation, because our backtesting period is marked by the market-stress caused by the COVID-19 crisis, and the asset returns across the different asset classes during this kind of periods tend to be driven by macroeconomic factors, like lockdown measures, that affect all of them relatively equally.
     	
     	The second parameter in definition \ref{definition:ShrunkCovarianceMatrix}, the shrinkage constant, represents the compromise between the sample covariance matrix and the structured estimator. It can take infinite many different values, even if constrained to be in the interval $[0,1]$ so as to compute the shrunk covariance matrix as a convex combination of the structured estimator and the sample covariance matrix. Ledoit and Wolf propose defining the shrinkage constant as the optimal $\delta^* \in [0,1]$ that minimises the distance between the shrunk covariance matrix and the true covariance matrix, i.e. the covariance matrix that contains the covariances of investable asset returns without noise.
     	
-    	\begin{theorem}[\cite{ledoit2003}]\label{optimalshrinkageconstantheorem}
-    	        Let $S = [s_{i,j}] \in \mathbb{R}^{N \times N}$ be the sample covariance matrix computed using $T \in \mathbb{N}$ past returns' observations, $F_S = [f_{i,j}] \in \mathbb{R}^{N \times N}$ the sample constant correlation matrix corresponding to $S$, $\Sigma = [\sigma_{i,j}] \in \mathbb{R}^{N \times N}$ the true covariance matrix and $F_\Sigma = [\phi_{i,j}] \in \mathbb{R}^{N \times N}$ its constant correlation matrix. Moreover, we define the loss function
+    	\begin{theorem}[Page 7, \cite{ledoit2003}]\label{optimalshrinkageconstantheorem}
+    	        Let $S = [s_{i,j}] \in \mathbb{R}^{N \times N}$ be a sample covariance matrix computed using $T \in \mathbb{N}$ past return's observations, $F_S = [f_{i,j}] \in \mathbb{R}^{N \times N}$ the sample constant correlation matrix corresponding to $S$, $\Sigma = [\sigma_{i,j}] \in \mathbb{R}^{N \times N}$ the true covariance matrix and $F_\Sigma = [\phi_{i,j}] \in \mathbb{R}^{N \times N}$ its constant correlation matrix. Moreover, we define the loss function
     	        \begin{align*}
     	            L(\delta) := \| \delta F_S + (1-\delta) S - \Sigma \|_F,
     	        \end{align*}
@@ -86,7 +86,7 @@ In this section, we present two methods that try to improve the stability of Mar
     	        where the function $\mathbb{V}[\cdot]$ designates the variance and $Cov[\cdot, \cdot]$ the covariance.
     	\end{theorem}
     	
-    	The proof of this theorem is provided in \cite{ledoit2003} and goes as follows.
+    	The proof of this theorem is provided in \cite{ledoit2003} (page 8) and goes as follows.
     	
     	\begin{proof}
     	        The expected value of the loss function $L$ can be rewritten as
@@ -108,7 +108,7 @@ In this section, we present two methods that try to improve the stability of Mar
     	
     	The only problem of the optimal shrinkage constant presented in theorem \ref{optimalshrinkageconstantheorem} is that we do not know the true covariance matrix and can only compute sample variances and covariances. Therefore, Ledoit and Wolf propose using a consistent estimator for $\delta^*$, i.e. an estimator that converges to the true $\delta^*$ for $T \rightarrow \infty$.
     	
-    	\begin{theorem}[\cite{ledoit}]
+    	\begin{theorem}[Pages 12-15, \cite{ledoit}]
     	    Assuming that asset returns' random variables $a_i$ are independent and identically distributed with finite fourth moment, i.e. $\mathbb{E}[|a_i^4|] < \infty$ for $i=1, \dots, N$. Let $Y = [y_{i,j}] \in \mathbb{R}^{N \times T}$ the matrix with the past $T$ periods returns, and $\bar{y}_i := \sum_{j=1}^T y_{i,j}$. Moreover, we define the matrices $S = [s_{i,j}] \in \mathbb{R}^{N \times N}$ as the sample covariance matrix of asset returns, $F_S = [f_{i,j}] \in \mathbb{R}^{N \times N}$ as its sample constant correlation matrix, $\Sigma = [\sigma_{i,j}] \in \mathbb{R}^{N \times N}$ as the true covariance matrix and $F_\Sigma = [\phi_{i,j}] \in \mathbb{R}^{N \times N}$ as its constant correlation matrix. Then the following holds.
     	    \begin{enumerate}
     	        \item A consistent estimator for $\sum_{i=1}^N \sum_{j=1}^N \mathbb{V}[\sqrt(T) s_{i,j}]$ is given by
@@ -137,9 +137,9 @@ In this section, we present two methods that try to improve the stability of Mar
         	    \end{enumerate}
     	\end{theorem}
     	
-    	A proof of this theorem cannot be found in \cite{ledoit} but is given in \cite{ledoit2003}. The assumption of asset returns' random variables being independent and identically distributed with finite fourth moments is necessary to prove convergence using the Central Limit Theorem. Ledoit and Wolf argue in \cite{ledoit2003} that stock returns do not fulfil this assumption, but that covariance matrix estimators also use this assumption and that introducing extra degrees of freedom in the estimation process to account for dependence and conditional heteroskedastic does not necessarily lead to better out-of-sample performance. However, we do not want to get into those details, because proving or disproving them is very hard and often relies on empirical statistical tests. Hence, we will focus on the empirical results of Ledoit and Wolf's method in our practical implementation backtest, and compare them to the other models according to the risk-adjusted returns, nHHI and turnover measures defined at the beginning of section \ref{section:PracticalImplementationofNaivePortfolioAllocationMethods}.
+    	A proof of this theorem cannot be found in \cite{ledoit} but is given in \cite{ledoit2003} (pages 10-11). The assumption of asset returns' random variables being independent and identically distributed with finite fourth moments is necessary to prove convergence using the Central Limit Theorem. Ledoit and Wolf argue in \cite{ledoit2003} (page 4) that stock returns do not fulfil this assumption, but that covariance matrix estimators also use this assumption and that introducing extra degrees of freedom in the estimation process to account for dependence and conditional heteroskedastic does not necessarily lead to better out-of-sample performance. However, we do not want to get into those details, because proving or disproving them is very hard and often relies on empirical statistical tests. Hence, we will focus on the empirical results of Ledoit and Wolf's method in our practical implementation backtest, and compare them to the other models according to the risk-adjusted returns, nHHI and turnover measures defined at the beginning of section \ref{section:PracticalImplementationofNaivePortfolioAllocationMethods}.
     	
-    	In \cite{ledoit}, Ledoit and Wolf point to the fact that $\hat{\delta}^* \notin [0,1]$ in equation \ref{consistentshrinkageconstantestimator} may hold. Hence, the final shrinkage intensity proposed by Ledoit and Wolf is defined as
+    	In \cite{ledoit} (page 15), Ledoit and Wolf point to the fact that $\hat{\delta}^* \notin [0,1]$ in equation \ref{equation:ConsistentShrinkageConstantEstimator} may hold. Hence, the final shrinkage intensity proposed by Ledoit and Wolf is defined as
     	\begin{align}\label{equation:FlooredCappedConsistentShrinkageConstantEstimator}
     	    \delta := \max \left\{ 0, \min \left\{ \frac{1}{T} \frac{\hat{\pi} - \hat{\rho}}{\hat{\gamma}}, 1 \right\} \right\}.
     	\end{align}
@@ -159,6 +159,8 @@ In this section, we present two methods that try to improve the stability of Mar
             Set $w_{opt} = \frac{1}{\mathds{1}^T \Tilde{w}_{opt}} \Tilde{w}_{opt}$\;
             \caption{Markowitz Minimum Variance Portfolio Computation with Ledoit and Wolf's Covariance Matrix Shrinkage}
         \end{algorithm}
+        
+        Now that we have introduced the topic of covariance matrix shrinking and defined the new algorithm to use the shrunk covariance matrix for the computation of Markowitz's minimum volatility portfolios, we can describe a more sophisticated approach to covariance shrinkage.
     
     \subsubsection{De Nard}\label{section:DeNard}
         
@@ -166,7 +168,7 @@ In this section, we present two methods that try to improve the stability of Mar
         
         In \cite{denard}, De Nard proposed a different approach for the covariance shrinkage method, that first clusters the assets in the covariance matrix in homogeneous groups to then shrink the corresponding block matrices inside the covariance matrix separately, instead of using the "all-assets-are-equal" approach proposed by Ledoit and Wolf. This approach allows us to apply covariance shrinkage to portfolios composed of assets from different classes (as in our practical implementation) and also account for the different fundamental properties of assets from different industries and regions in the case of portfolios that are homogeneous with respect to asset class.
         
-        \begin{definition}[Generalised Constant-Variance-Covariance Shrinkage Target \cite{denard}]\label{gcvcshrinkagetargetdefinition}
+        \begin{definition}[Generalised Constant-Variance-Covariance Shrinkage Target. Page 13, \cite{denard}]\label{definition:GCVC}
             Let $K \in \mathbb{N}$ be the number of homogeneous groups in which we cluster the $N \in \mathbb{N}$ assets, such that $K \leq N$. Without loss of generality, assume that the covariance matrix of asset returns is given by
             \begin{align*}
                 \Sigma = \begin{bmatrix}
@@ -194,7 +196,7 @@ In this section, we present two methods that try to improve the stability of Mar
                 \nu_{i,j} \mathds{1}_{N_i} \mathds{1}_{N_j}^T, \quad &\text{for } i \neq j \in \{ 1, \dots, K \},
                 \end{cases}
             \end{align*}
-            where $N_k$ is the number of assets in group $k$, $I_{N_k}$ is the $N_k$-dimensional identity matrix and $\mathds{1}_{N_k}$ is the $N_k$-dimensional vector of ones for all $k \in \{ 1, \dots, K \}$. Moreover, $\varphi_k, \nu_k, \nu_{i,j}$ are the average variance of group $k$, the average covariance of group $k$ and the average covariance of the off-diagonal cluster $i,j$ respectively, i.e.
+            where $N_k$ is the number of assets in group $k$, $I_{N_k}$ is the $N_k$-dimensional identity matrix and $\mathds{1}_{N_k}$ is the $N_k$-dimensional vector of ones for all $k \in \{ 1, \dots, K \}$. Moreover, $\varphi_k, \nu_k, \nu_{i,j}$ are the average variance of group $k$, the average covariance of group $k$ and the average covariance of the off-diagonal $(i,j)$-th cluster respectively, i.e.
             \begin{align*}
                 \varphi_k &:= \frac{1}{N_k} \sum_{l=1}^{N_k} \sigma_{l,l}^{k,k}, \\
                 \nu_k &:= \frac{1}{N_k^2} \sum_{l=1}^{N_k} \sum_{m=1}^{N_k} \sigma_{l,m}^{k,k}, \\
@@ -203,9 +205,44 @@ In this section, we present two methods that try to improve the stability of Mar
             Obviously, $\nu_{i,j} = \nu_{j,i}$ and hence $\Phi_{i,j} = \Phi_{j,i}$ for all $i,j = 1, \dots, K$.
         \end{definition}
         
-        De Nard's approach is to use the generalised constant-variance-covariance shrinkage target and the consistent estimator of the optimal shrinkage constant defined in equation \ref{equation:FlooredCappedConsistentShrinkageConstantEstimator}, which in this case should be computed using the matrix $\Phi_{GCVC}$ instead of the constant correlation matrix.
+        De Nard's approach is to use the generalised constant-variance-covariance shrinkage target and the consistent estimator of the optimal shrinkage constant defined in equation \ref{equation:FlooredCappedConsistentShrinkageConstantEstimator}, which in this case is computed using the matrix $\Phi_{GCVC}$ instead of the constant correlation matrix.
         
-        The most important parts of the computation of the GCVC shrinkage target are choosing the parameter $K$, i.e. deciding how many groups we want to cluster our $N$ assets into, and also deciding how to cluster the $N$ assets into $K$ (relatively) homogeneous groups. The answer to the first question can be given intuitively, by considering as many groups as assets classes, regions or industries as there are represented in our $N$ assets. De Nard also describes a clustering method in \cite{denard} that does not use $K$ as input parameter. However, we will focus on the \textit{Blockbuster Shrinkage Estimator} that clusters the $N$ assets into a previously determined number of groups $K$ using the Blockbuster clustering algorithm, because the number of assets considered in our practical implementation is rather low and we would like to group them by asset class.
+        The most important parts of the computation of the GCVC shrinkage target are choosing the parameter $K$, i.e. deciding how many groups we want to cluster our $N$ assets into, and also deciding how to cluster the $N$ assets into $K$ (relatively) homogeneous groups. The answer to the first question can be given intuitively, by considering as many groups as assets classes, regions or industries as there are represented in our $N$ assets. De Nard also describes a clustering method in \cite{denard} (pages 16-19) that does not use $K$ as input parameter. However, we will focus on the \textit{Blockbuster Shrinkage Estimator} that clusters the $N$ assets into a previously determined number of groups $K$ using the Blockbuster clustering algorithm, because the number of assets considered in our practical implementation is rather low and we would like to group them by asset class.
+        
+        Before we define the Blockbuster Clustering Algorithm, we need to define the $K$-means algorithm, which is an unsupervised learning algorithm that clusters a set of data points $x_1, \dots, x_L \in \mathbb{R}^N$, $L \in \mathbb{N}$ into a preset number $K \in \mathbb{N}$ of groups. This algorithm is responsible for the grouping step in the Blockbuster Clustering Algorithm, after the input data is preprocessed.
+        
+        \begin{algorithm}[H]
+            \SetAlgoLined
+            \SetKwInOut{Input}{Input}\SetKwInOut{Output}{Output}
+            \Input{Data points $X = \{ x_1, \dots, x_L\} \subset \mathbb{R}^N$, $L \in \mathbb{N}$, number of groups $K \in \mathbb{N}$ and tolerance $tol \in \mathbb{R}_{\geq 0}$}
+            \Output{Groups $M_1, \dots, M_K \subset \{ x_1, \dots, x_L \}$, such that $M_i \cap M_j = \emptyset$ for all $i \neq j$}
+            
+            Select $K$ random points from $X$, denote them by $x_{i_1}, \dots, x_{i_K}$\;
+            Initialise $M_j = \{ x_{i_j} \}$ and set  $\mu_j = x_{i_j}$ and $\tilde{\mu}_j = 0$\ for $j=1, \dots, K$;
+            \While{$\| \mu_j - \tilde{\mu}_j \| \geq tol$ for some $j=1, \dots, K$}{
+                \ForEach{$j=1, \dots, K$}{
+                    Set $\tilde{\mu}_j = \mu_j$\;
+                    Set $M_j = \{ x_l \in X : \mu_j = \arg\min_{j=1, \dots, K} \| \mu_j - x_l \| \}$\;
+                    Set $\mu_j = \frac{1}{| M_j |} \sum_{x \in M_j} x$\;
+                    }
+                }
+            \caption{$K$-means}
+        \end{algorithm}
+        
+        The $K$-means algorithm has as objective the minimisation of within-cluster sum-of-squares, i.e. the minimisation of
+        \begin{align*}
+            \sum_{l=0}^L \min_{\mu_j} \| x_l - \mu_j \|^2,
+        \end{align*}
+        where $\mu_j$ is the sample mean of the data points in the group $M_j$ for $j=1, \dots, K$.
+        
+        Because the algorithm is initialised with random centroids, i.e. random points that act as initial sample mean of each group, the algorithm only guarantees convergence to a local minimum, but not necessarily to a global minimum of the sum above. The algorithm is hence sensitive to the initialisation step. Moreover, given a relatively small sample ($|X|$ is \textit{small}), the algorithm is very sensitive to data points that lie \textit{far away} for the others, i.e. the algorithm is very sensitive to outliers. Some other drawbacks from the algorithm are depicted in figure \ref{fig:kmeansDrawbacks}, sourced from scikit-learn's website.
+        
+        \begin{figure}[h!]
+            \centering
+            \includegraphics[width=\textwidth]{bilder/kmeansDrawbacks.png}
+            \caption{Visualisation of Some Drawbacks of the $K$-means Clustering Algorithm.}
+            \label{fig:kmeansDrawbacks}
+        \end{figure}
         
         \begin{algorithm}[H]
             \SetAlgoLined
@@ -216,39 +253,45 @@ In this section, we present two methods that try to improve the stability of Mar
             Compute the sample covariance matrix $S \in \mathbb{R}^{N \times N}$\;
             Construct the sample eigenvector matrix $\tilde{U} \in \mathbb{R}^{N \times K}$ such that its columns are the eigenvectors corresponding to the $K$ largest sample eigenvalues\;
             Standardise each row of $\tilde{U}$ by its Euclidean norm and denote the row-normalised sample eigenvector matrix by $X$, so that $x_{n,k} = \tilde{u}_{n,k} / \| \tilde{u}_n \|$\;
-            Apply the K-means algorithm\footnotemark{} to the rows of $X$\;
-            \caption{Blockbuster Clustering Algorithm \cite{denard}}
+            Apply the K-means algorithm to the rows of $X$\;
+            \caption{Blockbuster Clustering Algorithm. Page 16, \cite{denard}}
         \end{algorithm}
-        \footnotetext{See appendix \ref{appendix:kMeansAlgorithm} for a description of the K-means algorithm used in our practical implementation.}
-        ~\
         
-        The objective of this algorithm is to cluster the $N$ assets into $K$ groups such that the correlations between the asset in a given group is higher than the correlation between assets of different groups. The result is a partition into $K$ (relatively) homogeneous sets. We use these sets to reorder the rows and columns of the sample covariance matrix in order to have the assets within a given group in contiguous rows and columns, and for the sample covariance matrix to have a block structure as the GCVC shrinkage target in definition \ref{gcvcshrinkagetargetdefinition}.
+        The objective of this algorithm is to cluster the $N$ assets into $K$ groups such that the correlations between the assets in a given group is higher than the correlation between assets of different groups. The result is a partition into $K$ (relatively) homogeneous sets. We use these sets to reorder the rows and columns of the sample covariance matrix in order to have the assets within a given group in contiguous rows and columns, and for the sample covariance matrix to have a block structure as the GCVC shrinkage target in definition \ref{definition:GCVC}.
+        
+        After the theoretical introduction to Ledoit and Wolf's and De Nard's covariance shrinkage methods, we proceed to the practical implementation results of the two methods.
     
     \subsubsection{Practical Implementation}
         %\textit{Analyse results comparing the method to Markowitz's method.}
         
-        We implemented both covariance shrinkage methods and simulated the results of the Markowitz's minimum volatility portfolios computed using the shrunk covariance matrix as input. For De Nard's method, we used a fixed amount of groups, which the assets in our portfolio should be clustered into before computing the shrinkage target: 4 groups, because we have 4 different asset classes. Hence, the suffix "K4" to the abbreviated name of De Nard's method that we will use in this section.
+        We implemented both covariance shrinkage methods and simulated the results of the Markowitz's minimum volatility portfolios computed using the shrunk covariance matrix as input. For De Nard's method, we used a fixed amount of groups, which the assets in our portfolio should be clustered into before computing the shrinkage target: 4 groups, because we have 4 different asset classes (see appendix \ref{appendix:PracticalImplementationFramework}). Hence, the suffix "K4" to the abbreviated name of De Nard's method that we will use in this section. The computed portfolios as well as the clusters can be found in appendix \ref{appendix:MMVPortfolios}.
         
-        \todo[inline]{Add examples of how assets were clustered?}
-        
-        Because covariance shrinkage methods try to improve stability by modifying the input matrix used for the computation of the corresponding Markowitz's minimum volatility portfolio, we first have a look at the condition number of the input matrices used in the computation for Ledoit and Wolf's and De Nard's methods, and compare them to the condition number of the sample covariance matrices used for the computation of the portfolios in section \ref{section:MarkowitzPracticalImplementation}. In figure \ref{fig:Covariance_matrix_cond_comparison}, the condition number with respect to the Euclidian norm of the sample covariance matrix (MMVP), Ledoit and Wolf's shrunk covariance matrix (MMVP-LW) and De Nard's shrunk covariance matrix (MMVP-DN-K4) over time are plotted. Both covariance shrinkage methods clearly achieve to reduce the condition number of the input matrix used for the computation of Markowitz's minimum volatility portfolios, with condition numbers that consistently lie below those of the sample covariance matrix. De Nard's method does achieve a more dramatic reduction in the condition number of the input matrix, with condition number that remain pretty stable over time until August 2020, when a short-lived spike can be observe. However, the spike in the condition number of De Nard's August 2020 shrunk covariance matrix stays well below the spikes which are also observed for the sample covariance matrix and Ledoit and Wolf's shrunk covariance matrix in August 2020.
+        Because covariance shrinkage methods try to improve stability by modifying the input matrix used for the computation of the corresponding Markowitz's minimum volatility portfolio, we first have a look at the condition number of the input matrices used in the computation for Ledoit and Wolf's and De Nard's methods, and compare them to the condition number of the sample covariance matrices used for the computation of the portfolios in section \ref{section:MarkowitzPracticalImplementation}. In figure \ref{fig:Covariance_matrix_cond_comparison}, the condition number with respect to the Euclidian norm of the sample covariance matrix (MMVP), Ledoit and Wolf's shrunk covariance matrix (MMVP-LW) and De Nard's shrunk covariance matrix (MMVP-DN-K4) over time are plotted. Both covariance shrinkage methods clearly achieve to reduce the condition number of the input matrix used for the computation of Markowitz's minimum volatility portfolios, with condition numbers that consistently lie below those of the sample covariance matrix. De Nard's method does achieve a more dramatic reduction in the condition number of the input matrix, with condition numbers that remain pretty stable over time until August 2020, when a short-lived spike can be observed. However, the spike in the condition number of De Nard's August 2020 shrunk covariance matrix stays well below the spikes which are also observed for the sample covariance matrix and Ledoit and Wolf's shrunk covariance matrix in August 2020.
         
         % Data
         \begin{figure}[h!]
             \centering
             \includegraphics[width=1.15\textwidth]{bilder/Covariance_matrix_cond_comparison.png}
-            \caption{Input Covariance Matrix' Condition Number over Time}
+            \caption{Condition Number of the 20 Assets Sample, Ledoit and Wolf Shrunk and De Nard $K=4$ Shrunk Covariance Matrices at  Each  of  the  12  Rebalancing  Points  in  the  Backtesting Period from 01/01/2020 to 31/12/2020.}
             \label{fig:Covariance_matrix_cond_comparison}
         \end{figure}
         
+        Figure \ref{fig:Corr_dist_to_id_all_methods} shows the distance of the correlation matrix to the ideal correlation matrix computed as in definition \ref{definition:DistanceToIdealCorrMatrix} for the correlation matrices corresponding to each of the 12 covariance matrices computed with each shrinkage method. Here we observe, that both shrinkage methods result in underlying correlation matrices that are nearer to the identity matrix with respect to the mentioned distance measure. It is interesting to see that Ledoit and Wolf's method reduces the distance further than De Nard's method, even though the condition number of the shrunk covariance matrices of the first method are higher than in the case of the second method. This lets us think that the low condition numbers of De Nard's shrunk covariance matrices are caused by a stronger reduction in the ratio of highest to lowest variance (or standard deviation) than in the case of Ledoit and Wolf's method. This makes sense, because Ledoit and Wolf's constant correlation model focuses on shrinking the covariance matrix by pulling together off diagonal elements of the covariance matrix, mathematically this can be verified by the fact that the shrinkage target matrix' diagonal elements are equal to those of the sample covariance matrix (the variances of asset returns), see definitions \ref{definition:CovarianceMatrix} and \ref{definition:ConstantCorrelationModel}. On the other hand, De Nard's method uses an average of the variances of each group in the definition of the diagonal entries of the shrinkage target, see definition \ref{definition:GCVC}.
+        
+        \begin{figure}[h!]
+		    \centering
+		    \includegraphics[width=1.15\textwidth]{bilder/Corr_dist_to_id_all_methods.png}
+		    \caption{20 Assets Correlation Matrix Distance to the Ideal Correlation Matrix at Each of the 12 Rebalancing Points in the Backtesting Period from 01/01/2020 to 31/12/2020 for each of the MMVP Methods.}
+		    \label{fig:Corr_dist_to_id_all_methods}
+		\end{figure}
+        
         Figure \ref{fig:MMVP-LW_allocation_plot} shows the evolution of target allocation across time of each asset in our portfolio for Markowitz's minimum volatility portfolios computed using Ledoit and Wolf's covariance shrinkage method described in section \ref{section:LedoitWolf} (MMVP-LW). The plot shows lower variance in allocation than we saw in figure \ref{fig:MMVP_allocation_plot} for Markowitz's minimum volatility portfolios computed with the sample covariance matrix as input, but higher variance than for inverse variance portfolios in plot \ref{fig:ivp_allocation_plot}.
-        \todo[inline]{add plots of correlation matrix distances to ideal correlation matrix?}
         
         % Data
         \begin{figure}[h!]
             \centering
             \includegraphics[width=1.15\textwidth]{bilder/MMVP-LW_allocation.png}
-            \caption{MMVP-LW Target Allocation over Time}
+            \caption{MMVP-LW of the Practical Implementation Portfolio Composed of 20 Assets at Each of the 12 Rebalancing Points in the Backtesting Period from 01/01/2020 to 31/12/2020.}
             \label{fig:MMVP-LW_allocation_plot}
         \end{figure}
         
@@ -258,11 +301,11 @@ In this section, we present two methods that try to improve the stability of Mar
         \begin{figure}[h!]
             \centering
             \includegraphics[width=1.15\textwidth]{bilder/MMVP-DN-K4_allocation.png}
-            \caption{MMVP-DN-K4 Target Allocation over Time}
+            \caption{MMVP-DN-K4 of the Practical Implementation Portfolio Composed of 20 Assets at Each of the 12 Rebalancing Points in the Backtesting Period from 01/01/2020 to 31/12/2020.}
             \label{fig:MMVP-DN-K4_allocation_plot}
         \end{figure}
         
-        In table \ref{tab:ewp_ivp_mmvp_mmvplw_mmvpdnk4_sharpe_turnover}, we have summarised the risk-adjusted returns measures and turnover figures of all portfolio allocation methods analysed until now. Ledoit and Wolf's covariance shrinkage method (MMVP-LW) achieves a significant reduction in turnover while improving the Sharpe ratio compared to Markowitz's minimum volatility portfolios computed without shrinkage (MMVP). The Sharpe ratio of MMVP-LW is even positive and higher than Sharpe ratio of equal weight portfolios (EWP), but still lower than the Sharpe ratio of inverse variance portfolios (IVP). On the contrary, De Nard's covariance shrinkage method (MMVP-DN-K4) fails to improve the Sharpe ratio of Markowitz's minimum volatility portfolios, and even happens to realise an important increase in portfolio turnover, which might have contributed to the bad risk-adjusted returns generated because of increased transaction costs.
+        In table \ref{tab:ewp_ivp_mmvp_mmvplw_mmvpdnk4_sharpe_turnover}, we have summarised the risk-adjusted returns measures and turnover figures of all portfolio allocation methods analysed until now. Ledoit and Wolf's covariance shrinkage method (MMVP-LW) achieves a significant reduction in turnover while improving the Sharpe ratio compared to Markowitz's minimum volatility portfolios computed without shrinkage (MMVP). The Sharpe ratio of MMVP-LW is even positive and higher than Sharpe ratio of equal weight portfolios (EWP), but still lower than the Sharpe ratio of inverse variance portfolios (IVP). On the contrary, De Nard's covariance shrinkage method (MMVP-DN-K4) fails to improve the Sharpe ratio of Markowitz's minimum volatility portfolios, and even produces an important increase in portfolio turnover, which might have contributed to the bad risk-adjusted returns generated because of increased transaction costs.
         
         % Data
         \begin{table}[h!]
@@ -276,7 +319,7 @@ In this section, we present two methods that try to improve the stability of Mar
              MMVP-LW & 0.5 & 0.012527 \\
              MMVP-DN-K4 & -0.134 & 0.027798
             \end{tabular}
-            \caption{Sharpe Ratio and Turnover Figures}
+            \caption{Sharpe Ratio and Turnover Figures of the Equal Weight, Inverse Variance Portfolios, Markowitz Minimum Volatility, Markowitz Minimum Volatility after Ledoit and Wolf's Shrinkage and Markowitz Minimum Volatility after De Nard's Shrinkage Portfolios for the Backtesting Period from 01/01/2020 to 31/12/2020.}
             \label{tab:ewp_ivp_mmvp_mmvplw_mmvpdnk4_sharpe_turnover}
         \end{table}
         
@@ -286,7 +329,7 @@ In this section, we present two methods that try to improve the stability of Mar
         \begin{figure}[h!]
 		    \centering
 		    \includegraphics[width=1.15\textwidth]{bilder/Turnover_over_time_EWP_IVP_MMVP_MMVP-LW_MMVP-DN-K4.png}
-		    \caption{Turnover of EWP, IVP, MMVP, MMVP-LW and MMVP-DN-K4 over the Backtesting Period}
+		    \caption{Turnover of Equal Weight, Inverse Variance Portfolios, Markowitz Minimum Volatility, Markowitz Minimum Volatility after Ledoit and Wolf's Shrinkage and Markowitz Minimum Volatility after De Nard's Shrinkage Portfolios at Each of the 12 Rebalancing Points in the Backtesting Period from 01/01/2020 to 31/12/2020.}
 		    \label{fig:Turnover_over_time_EWP_IVP_MMVP_MMVP-LW_MMVP-DN-K4}
 		\end{figure}
         
@@ -296,11 +339,11 @@ In this section, we present two methods that try to improve the stability of Mar
         \begin{figure}[h!]
             \centering
             \includegraphics[width=1.15\textwidth]{bilder/nHHI_EWP_IVP_MMVP_MMVP-LW_MMVP-DN-K4.png}
-            \caption{nHHIn over Time}
+            \caption{nHHIn of the Equal Weight, Inverse Variance, Markowitz Minimum Volatility, Markowitz Minimum Volatility after Ledoit and Wolf's Shrinkage and Markowitz Minimum Volatility after De Nard's Shrinkage Portfolios Composed of 20 Assets at Each of the 12 Rebalancing Points in the Backtesting Period from 01/01/2020 to 31/12/2020.}
             \label{fig:nHHI_EWP_IVP_MMVP_MMVP-LW_MMVP-DN-K4}
         \end{figure}
         
-        We can conclude, that Ledoit and Wolf's covariance shrinkage method produces input matrices with lower condition numbers, and achieves better out-of-sample risk-adjusted returns and significantly lower portfolio turnover than Markowitz's minimum volatility portfolios computed using the sample covariance matrix as input. However, it fails to reduce concentration with respect to the normalised Herfindahl-Hirsch-Index. De Nard's method also produces input matrices with lower condition numbers that lead to lower concentration figures. However, it fails to reduce portfolio turnover and its out-of-sample risk-adjusted performance is the worst among all portfolio optimisation methods analysed until now. This bad results might be explained by the fact that our asset universe is small, with only 20 assets, which leads to high sensitivity to outliers in the k-means algorithm used for clustering them (see appendix \ref{appendix:kMeansAlgorithm}). Finally, it is worth to mention, that none of the methods to compute Markowitz's minimum volatility portfolios has resulted in better Sharpe ratios or turnover figures than those of the inverse variance portfolios.
+        We can conclude, that Ledoit and Wolf's covariance shrinkage method produces input matrices with lower condition numbers, and achieves better out-of-sample risk-adjusted returns and significantly lower portfolio turnover than Markowitz's minimum volatility portfolios computed using the sample covariance matrix as input. However, it fails to reduce concentration with respect to the normalised Herfindahl-Hirsch-Index. De Nard's method also produces input matrices with lower condition numbers that lead to lower concentration figures. However, it fails to reduce portfolio turnover and its out-of-sample risk-adjusted performance is the worst among all portfolio optimisation methods analysed until now. This bad results might be explained by the fact that our asset universe is small, with only 20 assets, which leads to high sensitivity to outliers in the k-means algorithm used for clustering them. Finally, it is worth to mention, that none of the methods to compute Markowitz's minimum volatility portfolios has resulted in better Sharpe ratios or turnover figures than those of the inverse variance portfolios.
     
 %\subsection{Equal Weight and Inverse Variance Allocation}
 %    \textit{The 2 methods in this section are naive approaches to portfolio optimisation. Nevertheless, I think they are a good benchmark to compare the rest of methods. Moreover, we can also use them to see if portfolio optimisation is at all useful.}
@@ -310,19 +353,19 @@ In this section, we present two methods that try to improve the stability of Mar
 %    \subsubsection{Practical Implementation}
 %        \textit{Analyse results comparing the method to Markowitz's method.}
     
-\subsection{Hierarchical Risk Parity}
+\subsection{Hierarchical Risk Parity}\label{section:HierarchicalRiskParity}
     %\textit{This subsection, together with subsection \ref{nassetssec}, is the biggest part of the thesis. I will describe the method in a more mathematical way, as we already discussed. Moreover, I will discuss the differences between this method and the original method of Markowitz, the model assumptions and also its limitations.}
     
     In this section, we present an alternative risk-based portfolio allocation model that lies between Markowitz minimum volatility portfolio and the inverse variance portfolio.
     
-    In \cite{lopezmain}, López de Prado argues that the correlation matrix of asset returns is a linear algebra object that measures the cosines of the angles between any two vectors in the vector space formed by the returns time-series
+    In \cite{lopezmain} (page 4), López de Prado argues that the correlation matrix of asset returns is a linear algebra object that measures the cosines of the angles between any two vectors in the vector space formed by the return's time-series
     
-    \begin{definition}\todo[inline]{Citing Liesens lecture notes ok?}
+    \begin{definition}[Page 181, \cite{liesenlinalg}]
         Let $x, y \in \mathbb{R}^N \setminus \{ 0 \}$, then the \textbf{cosine of the angle between $x$ and $y$} is defined as
         \begin{align*}
             \cos \theta(x, y) := \frac{\langle x, y \rangle}{ \| x \|_2 \| y \|_2},
         \end{align*}
-        where $\langle \cdot, \cdot, \rangle$ is the Euclidean scalar product in $\mathbb{R}^N$.
+        where $\langle \cdot, \cdot \rangle$ is the Euclidean scalar product in $\mathbb{R}^N$.
         
         Two vectors are consider "close" when the angle $\theta(x, y)$ is "small", i.e. when $\cos \theta(x, y)$ is "close" to $1$.
     \end{definition}
@@ -353,7 +396,7 @@ In this section, we present two methods that try to improve the stability of Mar
         \end{align*}
     \end{proof}
     
-    When computing Markowitz minimum volatility portfolios with algorithm \ref{algorithm:MMVP}, assets are considered as being all equal, and only their correlations/covariances are used to decide what weight an asset gets in the resulting portfolio. That means, that there is no hierarchy. This has as consequence that, in algorithmic terms, all assets are potential substitutes of each other if their covariances are low enough. López de Prado describes this by modelling the vector spaced formed by the returns series as a fully connected graph that contains a node for each asset and where each edge represents the correlation between the two assets whose nodes it connects. In economic terms, this means that, using our practical implementation framework as example, the agricultural commodities ETP is directly competing for portfolio allocation with the technology sector ETP, even though the asset classes that they represent and assets contained in each of the ETPs are very different: the returns of companies in the technology sector are driven by very different factors than the returns of wheat for example. Introducing hierarchy to the optimisation process could help to get rid of this problem, and also help to approach the asset allocation problem from a more sensible economic perspective, by allowing allocating wealth from a top-down approach. A top down approach is used by many asset managers, and consists in allocating portions of the portfolio to each asset class first, then within each asset class to each region, within each region to each industry, etc. In our practical implementation framework, this would imply that similar assets would compete for allocation between each other, and not with non-similar assets. López de Prado main contribution is to define the Hierarchical Risk Parity (HRP) model that clusters similar assets into groups recursively to later allocate portions of the portfolio to each of the groups starting from the biggest, and then further dividing allocation among the smaller groups contained in the bigger ones (top-down approach).
+    When computing Markowitz minimum volatility portfolios with algorithm \ref{algorithm:MMVP}, assets are considered as being all equal, and only their correlations/covariances are used to decide what weight an asset gets in the resulting portfolio. That means, that there is no hierarchy. This has as consequence that, in algorithmic terms, all assets are potential substitutes of each other if their covariances are low enough. López de Prado describes this by modelling the vector spaced formed by the returns series as a fully connected graph that contains a node for each asset and where each edge represents the correlation between the two assets whose nodes it connects (page 4, \cite{lopezmain}). In economic terms, this means that, using our practical implementation framework as example, the agricultural commodities ETP is directly competing for portfolio allocation with the technology sector ETP, even though the asset classes that they represent and assets contained in each of the ETPs are very different: the returns of companies in the technology sector are driven by very different factors than the returns of wheat for example. Introducing hierarchy to the optimisation process could help to get rid of this problem, and also help to approach the asset allocation problem from a more sensible economic perspective, by allowing allocating wealth from a top-down approach. A top down approach is used by many asset managers, and consists in allocating portions of the portfolio to each asset class first, then within each asset class to each region, within each region to each industry, etc. In our practical implementation framework, this would imply that similar assets would compete for allocation against each other, and not against non-similar assets. López de Prado main contribution is to define the Hierarchical Risk Parity (HRP) model that clusters similar assets into groups recursively to later allocate portions of the portfolio to each of the groups starting from the biggest, and then further dividing allocation among the smaller groups contained in the bigger ones (top-down approach).
     
     The HRP model is divided into 3 parts:
     \begin{enumerate}
@@ -362,12 +405,12 @@ In this section, we present two methods that try to improve the stability of Mar
         \item Recursive Bisection.
     \end{enumerate}
     
-    The first two deal with the problem of classifying assets into clusters that contain similar assets, and the third part deals with the allocation problem among and between the asset clusters built in the first 2 steps.
+    In the next subsections, we will describe the first two, which deal with the problem of classifying assets into clusters that contain similar assets, and the third part, which deals with the allocation problem among and between the asset clusters built in the first 2 steps.
     
     \subsubsection{Tree Clustering and Quasi-Diagonalisation}
-        In the first step of the HRP algorithm, a hierarchical structure in form of a tree is built using the covariance matrix as input to define a metric space, in which the distance between assets measures the similarity of their returns over a certain period of time. In the second step the covariance matrix is reordered so that the largest covariances lie on the diagonal.
+        In the first step of the HRP algorithm, a hierarchical structure in the form of a tree is built using the covariance matrix as input to define a metric space, in which the distance between assets measures the similarity of their returns over a certain period of time. In the second step the covariance matrix' columns and rows are reordered so that the largest covariances lie on the diagonal.
         
-        \begin{definition}[\cite{lopezmain}]\label{definition:DistanceMatrix}
+        \begin{definition}[Page 5, \cite{lopezmain}]\label{definition:DistanceMatrix}
             Let $R \in \mathbb{R}^{N \times T}$ be a matrix that contains the past $T \in \mathbb{N}$ periods returns of $N \in \mathbb{N}$ assets and let $P = [\rho_{i,j}] \in \mathbb{R}^{N \times N}$ be the corresponding sample correlation matrix. We define the \textbf{matrix of distances between each pair of assets $D \in \mathbb{R}^{N \times N}$} and the \textbf{matrix of distances between each asset and the rest of assets $\tilde{D} \in \mathbb{R}^{N \times N}$} as
             \begin{align*}
                 D &= [d_{i,j}], \quad \text{where} \quad d_{i,j} := \sqrt{\frac{1}{2} \left( 1 - \rho_{i,j} \right)} &\quad \text{for} \quad i,j = 1, \dots, N, \\
@@ -375,11 +418,11 @@ In this section, we present two methods that try to improve the stability of Mar
             \end{align*}
         \end{definition}
         
-        \begin{theorem}
+        \begin{theorem}[Page 13, \cite{lopezmain}]
             Let $D = [d_{i,j}]$ be a matrix of distances between each pair of assets as in definition \ref{definition:DistanceMatrix}. Then $d: \mathbb{R}^T \times \mathbb{R}^T \rightarrow [0,1], d[r_i, r_j] := d_{i,j}$ is a metric for $r_i, r_j$ vectors of $T$ past returns of assets $i,j \in \{ 1, \dots, N \}$.
         \end{theorem}
         
-        López de Prado provides a simple proof for this theorem in \cite{lopezmain} by showing that the defined metric is linear multiple of the Euclidean distance between the z-standardised vectors of returns, i.e. after subtracting their mean and dividing by their standard deviation.\todo[inline]{Should I add the proof?}
+        López de Prado provides a simple proof for this theorem in \cite{lopezmain} (page 13) by showing that the defined metric is linear multiple of the Euclidean distance between the z-standardised vectors of returns, i.e. after subtracting their mean and dividing by their standard deviation.
         
         Once we have the matrix of distances between each asset and the rest of assets $\tilde{D}$, we can start clustering similar assets into groups. This is done iteratively using the linkage criterion. Initially there are $N$ clusters $u[i] := \{ i \}$ containing only one asset (asset $i$) for $i=1, \dots, N$, and the matrix $\tilde{D}$ can be interpreted as the table that contains the distances between each pair of clusters.
         \begin{align*}
@@ -414,9 +457,9 @@ In this section, we present two methods that try to improve the stability of Mar
         \end{algorithm}
         ~\
         
-        López de Prado provides a short example of this algorithm in \cite{lopezmain}.
+        López de Prado provides a short example of this algorithm in \cite{lopezmain} (pages 5-6).
         
-        \begin{example}[\cite{lopezmain}]\label{example:treeclustering}
+        \begin{example}[Pages 5-6, \cite{lopezmain}]\label{example:treeclustering}
             For better understanding, we denote each of the elements in the algorithm that we mention in the example with a subscript indicating the step in the for-loop to which they correspond.
             
             Let the initial matrix of distances between each asset and the rest of assets $\tilde{D}_0 \in \mathbb{R}^{3 \times 3}$ be given by
@@ -453,10 +496,9 @@ In this section, we present two methods that try to improve the stability of Mar
                                 \end{blockarray}.
             \end{align*}
             
-            \textbf{Second Iteration.} Because we only have 2 clusters left, these are also the closest clusters. We process to create a new cluster $u_2^* := \{ u[3], u_1^* \}$ that contains these two nearest clusters and to update the set of clusters to $U_2 := \{ u_2^* \} := \{ \{ u[3], \{ u[1], u[2] \} \} \}$.
+            \textbf{Second Iteration.} Because we only have 2 clusters left, these are also the closest clusters. We proceed to create a new cluster $u_2^* := \{ u[3], u_1^* \}$ that contains these two nearest clusters and to update the set of clusters to $U_2 := \{ u_2^* \} := \{ \{ u[3], \{ u[1], u[2] \} \} \}$.
             
             Now, we can update the matrix $\tilde{D}_1$. First, we compute the column $\tilde{d}_{u_2^*}$.
-            Now, we can update the matrix $\tilde{D}_0$. First, we compute the column $\tilde{d}_{u_1^*}$.
             \begin{align*}
                 \tilde{d}_{u_2^*} := \begin{bmatrix}
                     0
@@ -503,6 +545,8 @@ In this section, we present two methods that try to improve the stability of Mar
                                 \end{blockarray} \in \mathbb{R}^{3 \times 3}.
             \end{align*}
         \end{example}
+        
+        Now that we know how assets are clustered into groups, we can describe the allocation process.
         
     \subsubsection{Recursive Bisection}
         Once we have established a hierarchical structure of the assets by computing the set of clusters $U$ and the quasi-diagonal covariance matrix of asset returns $\Sigma_{Quasi-diag}$ as described in the previous section, we can use them to compute a target portfolio.
@@ -554,11 +598,11 @@ In this section, we present two methods that try to improve the stability of Mar
             w_2 &:= \frac{\frac{1}{\tilde{V}_i^{(2)}}}{\sum_{k=1}^2 \frac{1}{\tilde{V}_i^{(k)}}} = 1 - \frac{\tilde{V}_i^{(2)}}{\tilde{V}_i^{(1)} + \tilde{V}_i^{(2)}} = 1 - \alpha_i.
         \end{align*}
         
-        Finally, for the portfolio weights $0 \leq w_k \leq 1$ for all $k=1, \dots, N$ holds throughout the algorithm, because they are initialised to $1$ and only changed by a multiplication at steps 12 and 15, where $0 \leq \alpha_i \leq 1$ holds for all multiplication factors. $\sum_{k=1}^N w_k = 1$ also holds throughout the algorithm, because the weights of higher hierarchical levels are split at each iteration, i.e. the multiplication factors at steps 12 and 15 add up to $1$.
+        Finally, for the portfolio weights, $0 \leq w_k \leq 1$ for all $k=1, \dots, N$ holds throughout the algorithm, because they are initialised to $1$ and only changed by a multiplication at steps 12 and 15, where $0 \leq \alpha_i \leq 1$ holds for all multiplication factors. $\sum_{k=1}^N w_k = 1$ also holds throughout the algorithm, because the weights of higher hierarchical levels are split at each iteration, i.e. the multiplication factors at steps 12 and 15 add up to $1$.
         
-        Before we present the results of the hierarchical risk-parity method's practical implementation, we would like to to flag the flexibility of the method up. Here, we have described the hierarchical risk-parity method as López de Prado does in \cite{lopezmain}. However, this method does allow the asset manager to adjust certain parts to their mandate and constrains, as well as to the idiosyncracies of the assets in the portfolio.
+        Before we present the results of the hierarchical risk-parity method's practical implementation, we would like to flag the flexibility of the method up. Here, we have described the hierarchical risk-parity method as López de Prado does in \cite{lopezmain}. However, this method does allow the asset manager to adjust certain parts to their mandate and constrains, as well as to the idiosyncracies of the assets in the portfolio.
         \begin{enumerate}
-            \item The distance matrix $\tilde{D} \in \mathbb{R}^{N \times N}$ defined in definition \ref{definition:DistanceMatrix} can be chosen differently. The asset manager can either define it using the correlations between assets but with a different metric or using a completely different input other than correlations. An example of an alternative metric given by López de Prado in \cite{lopezmain} is
+            \item The distance matrix $\tilde{D} \in \mathbb{R}^{N \times N}$ defined in definition \ref{definition:DistanceMatrix} can be chosen differently. The asset manager can either define it using the correlations between assets but with a different metric or using a completely different input other than correlations. An example of an alternative metric given by López de Prado in \cite{lopezmain} (page 13) is
             \begin{align*}
                 d_{i,j} := \sqrt{1- \left| \rho_{i,j} \right|}.
             \end{align*}
@@ -567,33 +611,35 @@ In this section, we present two methods that try to improve the stability of Mar
         \end{enumerate}
         
         López de Prado method should be understood as a framework that advocates for the use of hierarchical structures in the asset allocation process, and not as method for which the input parameters should be optimised in order to get the best results. Asset managers are required to use the framework and adapt it to their assets, goals and constrains.
+        
+        We have described in the past two sections, how the hierarchical risk parity allocation model clusters assets into hierarchical groups and allocates wealth to each of the clusters recursively. Now we can continue to the results of its practical implementation.
     
     %References: \cite{lopezmain}, \cite{berndscherer} \cite{stefanjansen}
     
     \subsubsection{Practical Implementation}
         %\textit{Analyse results comparing the method to Markowitz's method and also to the other 3 methods above.}
         
-        In this final subsection, we present the results of López de Prado's hierarchical risk parity practical implementation, and compare the results to all the previously defined portfolio construction models.
+        In this final subsection, we present the results of López de Prado's hierarchical risk parity practical implementation, and compare the results to all the previously defined portfolio construction models. The resulting portfolios can be found in appendix \ref{appendix:HRPPortfolios}.
         
-        First, we see the dendrogram plots of the clustered assets in figures \ref{fig:DendrogramJanuary2020}, \ref{fig:DendrogramApril2020} and \ref{fig:DendrogramJuly2020}, which correspond to the initial clustering and the clustering at the 2 peaks in portfolio turnover in figure \ref{fig:Turnover_over_time_all}. Here we can observe that the dendrogram or tree in April and July 2020 are deeper than in the January rebalancing point, indicating that the distances between assets are greater. On the contrary, in January 2020, assets are better distributed in high order groups containing more assets each.
+        First, we see the dendrogram plots of the clustered assets in figures \ref{fig:DendrogramJanuary2020}, \ref{fig:DendrogramApril2020} and \ref{fig:DendrogramJuly2020}, which correspond to the initial clustering and the clustering at the 2 peaks in portfolio turnover in figure \ref{fig:Turnover_over_time_all}. The vertical distances in the plots represent the distances between each asset/asset group that is represented by horizontal lines linking two vertical lines of the tree. Here we can observe that the dendrogram or tree in April and July 2020 are deeper than in the January rebalancing point, indicating that the distances between assets are greater. On the contrary, in January 2020, assets are better distributed in high-order groups containing more assets each.
         
-        In the January example, assets that tend to exhibit less variance of returns and that are considered "safer" investments are clustered together like fixed income ETPs and the precious metals ETP (cluster containing IMTB, DBP, IAGG, ILTB, ISTB). Other similar ETPs like the energy producers ETF (FILL) and the base metals (DBB) and energy funds (DBE) are also clustered together. ETFs of sectors that tend to follow the economic cycle like financials, industrials, consumer discretionary, etc. also form a cluster (RXI, IXN, IXP, IXG, EXI, MXI) marked in red.
+        In the January example, assets that tend to exhibit less variance of returns and that are considered \textit{safer} investments are clustered together like fixed income ETPs and the precious metals ETP (cluster containing IMTB, DBP, IAGG, ILTB, ISTB). Other similar ETPs like the energy producers ETF (FILL) and the base metals (DBB) and energy funds (DBE) are also clustered together. ETFs of sectors that tend to follow the economic cycle like financials, industrials, consumer discretionary, etc. also form a cluster (RXI, IXN, IXP, IXG, EXI, MXI) marked in red. Economic cycle following sectors are those that profit from higher inflation, higher growth and higher unemployment. The distance between the top-level group (the one that contains the last two clusters) and the bottom groups (the ones that contain only one asset) is less than $1$, as we can see with the help of the left vertical axis labels.
         
         % Data
         \begin{figure}[h!]
             \centering
             \includegraphics[width=1.15\textwidth]{bilder/Dendrogram_January_2020.png}
-            \caption{Tree Clustering Algorithm Result for January 2020}
+            \caption{Tree Clustering Algorithm Result for a Portfolio of 20 Assets at the Rebalancing Point in January 2020.}
             \label{fig:DendrogramJanuary2020}
         \end{figure}
         
-        In April and July, the separation between "safer" and "riskier" investments into different clusters is more pronounced. All equity ETFs are part of a big cluster, while fixed income ETFs are part of another separate big cluster, with the edges that connect the 2 sub-trees at a relatively high level. This is a visualisation of the fact that the returns' time-series of the ETPs in these two asset classes were less similar than in January 2020 (see theorem \ref{theorem:CorrelationCosineTimeseries} and the interpretation that followed).
+        In April and July, the separation between \textit{safer} and \textit{riskier} investments into different clusters is more pronounced. All equity ETFs are part of a big cluster, while fixed income ETFs are part of another separate big cluster, with the edges that connect the 2 sub-trees at a relatively high level. This is a visualisation of the fact that the returns' time-series of the ETPs in these two asset classes were less similar than in January 2020 (see theorem \ref{theorem:CorrelationCosineTimeseries} and the interpretation that followed). The distance between the top-level group (the one that contains the last two clusters) and the bottom groups (the ones that contain only one asset) is greater in April and slightly smaller in July than $1$, as we can see with the help of the left vertical axis. The first clusters are built at the $0.3$ level, while in the January plot, we see that the first clustered assets appear near the $0.6$ level, indicating greater distances between assets in January than in April and July. Nevertheless, higher-order clusters are further apart in the latter months than in the former one.
         
         % Data
         \begin{figure}[h!]
             \centering
             \includegraphics[width=1.15\textwidth]{bilder/Dendrogram_April_2020.png}
-            \caption{Tree Clustering Algorithm Result for April 2020}
+            \caption{Tree Clustering Algorithm Result for a Portfolio of 20 Assets at the Rebalancing Point in April 2020}
             \label{fig:DendrogramApril2020}
         \end{figure}
         
@@ -601,17 +647,17 @@ In this section, we present two methods that try to improve the stability of Mar
         \begin{figure}[h!]
             \centering
             \includegraphics[width=1.15\textwidth]{bilder/Dendrogram_July_2020.png}
-            \caption{Tree Clustering Algorithm Result for July 2020}
+            \caption{Tree Clustering Algorithm Result for a Portfolio of 20 Assets at the Rebalancing Point in July 2020}
             \label{fig:DendrogramJuly2020}
         \end{figure}
         
-        Second, we have a look at the target allocation over time. Figure \ref{fig:HRP_allocation_plot} shows that the changes in target allocation over time are very similar to those of the inverse variance allocation method (see figure \ref{fig:ivp_allocation_plot}). This is not surprising, because the hierarchical risk parity method uses inverse variance allocation to split portfolio weights among the different clusters constructed by the tree clustering algorithm (algorithms \ref{algorithm:TreeClustering} and \ref{algorithm:hrp}.
+        Second, we have a look at the target allocation over time. Figure \ref{fig:HRP_allocation_plot} shows that the changes in target allocation over time are very similar to those of the inverse variance allocation method (see figure \ref{fig:ivp_allocation_plot}). This is not surprising, because the hierarchical risk parity method uses inverse variance allocation to split portfolio weights among the different clusters constructed by the tree clustering algorithm (algorithms \ref{algorithm:TreeClustering} and \ref{algorithm:hrp}).
         
         % Data
         \begin{figure}[h!]
             \centering
             \includegraphics[width=1.15\textwidth]{bilder/HRP_allocation.png}
-            \caption{HRP Target Allocation over Time}
+            \caption{HRP Target Allocation of the Practical Implementation Portfolio Composed of 20 Assets at Each of the 12 Rebalancing Points in the Backtesting Period from 01/01/2020 to 31/12/2020.}
             \label{fig:HRP_allocation_plot}
         \end{figure}
         
@@ -630,7 +676,7 @@ In this section, we present two methods that try to improve the stability of Mar
              MMVP-DN-K4 & -0.134 & 0.027798 \\
              HRP & 1.097 & 0.008984
             \end{tabular}
-            \caption{Sharpe Ratio and Turnover Figures}
+            \caption{Sharpe Ratio and Turnover Figures of the Equal Weight, Inverse Variance Portfolios, Markowitz Minimum Volatility, Markowitz Minimum Volatility after Ledoit, Wolf's Shrinkage and Markowitz Minimum Volatility after De Nard's Shrinkage and Hierarchical Risk Parity Portfolios for the Backtesting Period from 01/01/2020 to 31/12/2020.}
             \label{tab:all_sharpe_turnover}
         \end{table}
         
@@ -640,17 +686,17 @@ In this section, we present two methods that try to improve the stability of Mar
         \begin{figure}[h!]
             \centering
             \includegraphics[width=1.15\textwidth]{bilder/Turnover_over_time_all.png}
-            \caption{Turnover over Time}
+            \caption{Turnover of Equal Weight, Inverse Variance Portfolios, Markowitz Minimum Volatility, Markowitz Minimum Volatility after Ledoit and Wolf's Shrinkage, Markowitz Minimum Volatility after De Nard's Shrinkage and Hierarchical Risk Parity Portfolios at Each of the 12 Rebalancing Points in the Backtesting Period from 01/01/2020 to 31/12/2020.}
             \label{fig:Turnover_over_time_all}
         \end{figure}
         
-        Finally, figure \ref{fig:nHHI_all} presents the concentration figures of each monthly portfolio for all methods analysed. The hierarchical risk parity method (HRP) generates portfolios that are consistently more concentrated with respect to the Herfindahl-Hirsch-Index than any of the other methods, even higher than the inverse variance (IVP) and Markowitz's minimum volatility portfolios computed using Ledoit and Wolf's covariance shrinkage method (MMVP-LW). This is a rather unexpected result, because López de Prado praises the hierarchical risk parity method as a way to reduce the high concentration present in Markowitz's minimum volatility portfolios.
+        Finally, figure \ref{fig:nHHI_all} presents the concentration figures of each monthly portfolio for all methods analysed. The hierarchical risk parity method (HRP) generates portfolios that are consistently more concentrated with respect to the Herfindahl-Hirsch-Index than any of the other methods, even higher than the inverse variance (IVP) and Markowitz's minimum volatility portfolios computed using Ledoit and Wolf's covariance shrinkage method (MMVP-LW). This is a rather unexpected result, because López de Prado praises the hierarchical risk parity method as a way to reduce the high concentration present in Markowitz's minimum volatility portfolios (page 2, \cite{lopezmain}).
         
         % Data
         \begin{figure}[h!]
             \centering
             \includegraphics[width=1.15\textwidth]{bilder/nHHI_all.png}
-            \caption{nHHIn over Time}
+            \caption{nHHIn of the Equal Weight, Inverse Variance, Markowitz Minimum Volatility, Markowitz Minimum Volatility after Ledoit and Wolf's Shrinkage, Markowitz Minimum Volatility after De Nard's Shrinkage and Hierarchical Risk Parity Portfolios Composed of 20 Assets at Each of the 12 Rebalancing Points in the Backtesting Period from 01/01/2020 to 31/12/2020.}
             \label{fig:nHHI_all}
         \end{figure}
         

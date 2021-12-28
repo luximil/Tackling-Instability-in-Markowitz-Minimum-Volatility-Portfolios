@@ -3,7 +3,7 @@
 
 In this section, we provide a general definition of the asset allocation problem, and define two naive solutions as well as Markowitz's solution to this problem. Finally, we present the results of simulating these three allocation methods during the year 2020.
 
-Assume an investor with a total wealth of $\$x \in \mathbb{R}_{\geq 0}$, i.e. a total wealth of $x$ U.S. dollars. Let $A := \{a_1, \dots, a_N \}$ be the set of assets, which the investor can trade (buy and sell) and let $a_i$ be the real-valued random variable representing the return of asset $i = \{ 1, \dots, N \}$. By asset, we understand anything with a price that can be bought and sold so as to profit from price differences across time and that might also produce some cash-flow (coupon or dividend payments), i.e. returns. However, here we will focus on the most widely used investment assets: for example cash, real-estate objects, bonds, stocks, commodities and funds.
+Assume an investor with a total wealth of $\$x \in \mathbb{R}_{\geq 0}$, i.e. a total wealth of $x$ U.S. dollars. Let $A := \{a_1, \dots, a_N \}$ be the set of assets, which the investor can trade (buy and sell) and let $a_i$ be the real-valued random variable representing the return of asset $i = \{ 1, \dots, N \}$. By asset, we understand anything with a price that can be bought and sold so as to profit from price differences across time and that might also produce some cash-flow (coupon or dividend payments), i.e. returns. However, here we will focus on the most widely used investment assets: for example real-estate objects, bonds, stocks, commodities and funds. We will specifically focus on \textit{risky} assets, which are assets such that the corresponding random variable of returns is not constant, and hence present return's variance strictly greater than $0$. However, this does not mean that the return's observations of risky assets cannot be constant over a certain period of time.
 
 \begin{definition}
     A \textbf{portfolio $P_A$ composed of the assets in $A$} is defined as
@@ -16,12 +16,12 @@ Assume an investor with a total wealth of $\$x \in \mathbb{R}_{\geq 0}$, i.e. a 
     \end{align*}
 \end{definition}
 
-One of the most important questions that an investor faces is how much of their total wealth $\$x$ they should allocate to each of the assets in $A$, i.e. which portfolio $P_A \in \mathbb{R}^N$ they should to hold. This question has infinite discretionary and many systematic answers. For example, wealthy investors might prefer to hold a portfolio focused on protecting their total wealth against inflation and other risks, while less affluent investors might prefer a portfolio with a high growth potential at the expense of assuming higher risks.
+One of the most important questions that an investor faces is how much of their total wealth $\$x$ they should allocate to each of the assets in $A$, i.e. which portfolio $P_A \in \mathbb{R}^N$ they should hold. This question has infinite discretionary and many systematic answers. For example, wealthy investors might prefer to hold a portfolio focused on protecting their total wealth against inflation and other risks, while less affluent investors might prefer a portfolio with a high growth potential at the expense of assuming higher risks.
 
 \subsection{Naive Portfolio Allocation Models}
-    One of the most naive answers to this question is to allocate an equal amount of wealth to each asset. Another naive answer is to allocate wealth to each asset according to their returns' variance, so that each asset is allocated in inverse proportion to their returns' variance.
+    One of the most naive answers to this question is to allocate an equal amount of wealth to each asset. Another naive answer is to allocate wealth to each asset according to their return's variance, so that each asset is allocated in inverse proportion to their return's variance.
     
-    \begin{definition}[Equal Weight Portfolio \cite{equalweight}]\label{definition:EqualWeightPortfolio}
+    \begin{definition}[Equal Weight Portfolio. Page 1922, \cite{equalweight}]\label{definition:EqualWeightPortfolio}
         Consider the set of investable assets $A = \{ a_1, \dots, a_N \}$. The \textbf{equal weight allocation portfolio (EWP)} is defined as
         \begin{align*}
             EWP_A = [w_i] \in \mathbb{R}_{\geq 0}^N, \quad \text{such that} \quad w_i := \frac{1}{N} \quad \text{for all} \quad i = 1, \dots, N.
@@ -30,20 +30,34 @@ One of the most important questions that an investor faces is how much of their 
     
     The equal weight portfolio is the most widely used allocation method when no information about the assets in the portfolio is available to rank them or to compute some measure to define an optimisation problem. It is also the most naive way of allocating capital across the $N$ assets considered. However, this naive method has proven to perform even better than other, even very sophisticated, methods as shown in \cite{equalweight}.
     
-    \begin{definition}[Inverse Variance Portfolio \cite{equalweight}]\label{definition:InverseVariancePortfolio}
-       Consider the set of investable assets $A = \{ a_1, \dots, a_N \}$. The \textbf{inverse variance allocation portfolio (IVP)} is defined as
+    \begin{definition}[Inverse Variance Portfolio. Pages 431-432 \cite{franzen}]\label{definition:InverseVariancePortfolio}
+       Consider the set of investable assets $A = \{ a_1, \dots, a_N \}$ and let $\mathbb{V}[a_i] \in \mathbb{R}$ be the variance of returns of the $i$-th asset. If $\mathbb{V}[a_i] > 0$ for all $i=\{ 1, \dots, N \}$, the \textbf{inverse variance allocation portfolio (IVP)} is defined as
         \begin{align*}
-            IVP_A = [w_i] \in \mathbb{R}_{\geq 0}^N, \quad \text{such that} \quad w_i := \frac{\frac{1}{\mathbb{V}[a_i]}}{\sum_{k=1}^N \frac{1}{\mathbb{V}[a_k]}} \quad \text{for} \quad i=1, \dots, N,
+            IVP_A = [w_i] \in \mathbb{R}_{\geq 0}^N, \quad \text{such that} \quad w_i := \frac{\frac{1}{\mathbb{V}[a_i]}}{\sum_{k=1}^N \frac{1}{\mathbb{V}[a_k]}} \quad \text{for} \quad i=1, \dots, N.
         \end{align*}
-        where $\mathbb{V}[a_i]$ is the variance of the returns' distribution of the $i$-th asset.
     \end{definition}
     
-    The IVP can be understood as the allocation method that weights each asset in the portfolio so that each of them contributes the same amount to the total portfolio risk if the returns of assets are considered stochastic independent (assets with higher variance are allocated a smaller portion of the portfolio than assets with lower variance).
+    The IVP can be understood as the allocation method that weights each asset in the portfolio so that each of them contributes the same amount to the total portfolio risk if the returns of assets are considered stochastically independent (assets with higher variance are allocated a smaller portion of the portfolio than assets with lower variance). Moreover, the IVP can only be defined for risky assets, because assets with constant returns have variance equal to $0$.
     
     Although IVP is more complex than the EWP model because the estimation of some parameters is needed, it is still considered a naive method.
 
 \subsection{Markowitz's Portfolio Optimisation Model}
-    Harry M. Markowitz was the first to develop and present a systematic approach to mathematically define superior portfolios, i.e. portfolios that an investor would prefer to hold irrespective of the investors' goals or constrains. Moreover, he gave a mathematical definition for measuring risk by defining it as the standard deviation of past returns and also a mathematical definition for measuring future returns by using the expected value of past returns. His work earned him a Nobel Memorial Prize in Economic Sciences in 1990 \cite{markowitznobelprize}. Markowitz's portfolio construction model laid the ground for quantitative asset allocation models. Many asset allocation models today are developed using Markowitz's model and adjusting it to account for modern investors' needs. For example, by using risk measures other than the standard deviation of past returns, or by targeting functions other than expected returns.
+    Harry M. Markowitz was the first to develop and present a systematic approach to mathematically define \textit{superior portfolios}, i.e. portfolios that an investor would prefer to hold irrespective of the investor's goals or constrains. Moreover, he gave a mathematical definition for measuring risk by defining it as the standard deviation of past returns and also a mathematical definition for measuring future returns by using the expected value of past returns. His work earned him a Nobel Memorial Prize in Economic Sciences in 1990 \cite{markowitznobelprize}. Markowitz's portfolio construction model laid the ground for quantitative asset allocation models. Many asset allocation models today are developed using Markowitz's model, adjusting it to account for modern investors' needs. For example, by using risk measures other than the standard deviation of past returns, or by targeting functions other than expected returns.
+    
+    Markowitz (page 129, \cite{markowitzorg}) considers a portfolio \textit{inefficient} if:
+    \begin{enumerate}
+        \item it is possible to obtain higher expected (or average) return with no greater variability of return,
+        
+        \item or obtain greater certainty of return with no less average or expected return.
+    \end{enumerate}
+    
+    Mathematically, the set of superior portfolios is defined by all portfolios that are not inefficient, which are those such that
+    \begin{enumerate}
+        \item the expected (or average) return is maximal for a fixed level of return's variance,
+        \item or the return's variance is minimal for a fixed level of expected or average return.
+    \end{enumerate}
+    
+    We will focus on the second definition of efficient portfolios, even though both are equivalent.
     
     The most important parameter in the optimisation problem that defines the elements in the set of superior portfolios that Markowitz defined is the sample covariance matrix of asset returns.
     
@@ -92,7 +106,7 @@ One of the most important questions that an investor faces is how much of their 
     %    Theorem \ref{theorem:CovarianceMatrixRank} also applies to the unbiased sample covariance matrix from remark \ref{remark:UnbiasedSampleCovarianceMatrix}, because the unbiased sample covariance matrix differs from the biased sample covariance matrix from \ref{definition:CovarianceMatrix} only by a non-zero scalar factor.
     %\end{remark}
     
-    Now that we have defined the sample covariance matrix of asset returns, we can proceed to define the elements of the set of superior portfolios.
+    Now that we have defined the sample covariance matrix of asset returns, we can proceed to define the elements of the set of superior portfolios as the solutions to a mathematical optimisation problem. 
     
     \begin{definition}[Optimal Mean-Variance Portfolio \cite{markowitzorg}]\label{definition:OptimalMeanVariancePortfolio}
         Consider the set of investable assets $A = \{ a_1, \dots, a_N \}$. Then \textbf{Markowitz's optimal portfolio for a given level of return $\mu_P \in \mathbb{R}$} is given by the solution to the optimisation problem
@@ -103,10 +117,10 @@ One of the most important questions that an investor faces is how much of their 
         \end{align*}
         where $\mathds{1} := [ 1, \dots, 1]^T \in \mathbb{R}^N$, $\Sigma \in \mathbb{R}^{N \times N}$ is the sample covariance matrix of returns and $\mu \in \mathbb{R}^N$ is the vector of expected returns of the $N$ assets.
         
-        The set of pairs $(\mu_p, \sigma_P^2) \in \mathbb{R} \times \mathbb{R}_{\geq 0}$ such that, for each $\mu_P \in \mathbb{R}$, $\sigma_P^2 := w_{opt}^T \Sigma w_{opt}$, where $w_{opt}$ is the solution to the optimisation problem above, is called the \textbf{efficient frontier}.
+        The set of superior portfolios given by set of pairs $(\mu_p, \sigma_P^2) \in \mathbb{R} \times \mathbb{R}_{\geq 0}$ such that, for each $\mu_P \in \mathbb{R}$, $\sigma_P^2 := w_{opt}^T \Sigma w_{opt}$, where $w_{opt}$ is the solution to the optimisation problem above, is also called the \textbf{efficient frontier}. $\mu_P$ is the expected return and $\sigma_P^2$ is the variance of the portfolio $w_{opt}$.
     \end{definition}
     
-    Please, note that, while the equal weight and inverse variance portfolios are long-only portfolios (all assets are either bought or not bought), Markowitz's optimal portfolios are long-short portfolios, i.e. short-selling\footnote{Short-selling is the act of selling an asset that you do not own by borrowing it and later re-buying it to hand it back to the borrower, so as to profit from the fall in the price of the asset.} is allowed. Mathematically, this means that the optimal vector solution to the optimisation problem in definition \ref{definition:OptimalMeanVariancePortfolio} can contain negative entries, while the equal weight and inverse variance portfolio vectors only contain non-negative entries. Obviously, zero entries are can appear in all three of them, meaning that the corresponding asset is not part of the portfolio.
+    Please, note that, while the equal weight and inverse variance portfolios are long-only portfolios (all assets are either bought or not bought), Markowitz's optimal portfolios are long-short portfolios, i.e. short-selling\footnote{Short-selling is the act of selling an asset that you do not own by borrowing it and later re-buying it to hand it back to the borrower, so as to profit from the fall in the price of the asset.\label{Footnote:ShortSelling}} is allowed. Mathematically, this means that the optimal solution vector from the optimisation problem in definition \ref{definition:OptimalMeanVariancePortfolio} can contain negative entries, while the equal weight and inverse variance portfolio vectors only contain non-negative entries.
     
     An investor that wants to select an optimal portfolio using Markowitz's model can then decide to either
     \begin{enumerate}
@@ -135,14 +149,14 @@ One of the most important questions that an investor faces is how much of their 
         Investors with an utility function $U_{\alpha}$, $\alpha \in (0, 0.5)$ would only invest a portion ($2 \alpha$) of their total wealth in the portfolio. Investors with an utility function $U_{\alpha}$, $\alpha = 0.5$ would invest their complete wealth in the portfolio. Finally, investors with an utility function $U_{\alpha}$, $\alpha > 0.5$ would not only invest their complete wealth, but also borrow extra wealth to also invest it in the portfolio.
     \end{example}
     
-    A common misconception when talking about Markowitz's optimal portfolios is that their computation assumes that returns are normally distributed. This is however wrong, as we have not used this assumption yet, and will not use it later. However, it is true that Markowitz's optimal portfolios are utility maximising only if the utility function of the investor is dependent on first and second order movements of returns, i.e. dependent on mean return and variance of returns. For investors, whose utility function also depends on variables other than portfolio mean return and variance of returns, Markowitz's optimal portfolios might not be optimal. For example, if the investor's utility is also dependent on the maximum temporal loss or the skewness of returns.
+    A common misconception when talking about Markowitz's optimal portfolios is that their computation assumes that returns are normally distributed. This is however wrong, as we have not used this assumption yet, and will not use it later. However, it is true that Markowitz's optimal portfolios are utility maximising only if the utility function of the investor is dependent on first and second order moments of returns, i.e. dependent on mean return and variance of returns. For investors, whose utility function also depends on variables other than portfolio mean return and variance of returns, Markowitz's optimal portfolios might not be optimal. For example, if the investor's utility is also dependent on the maximum temporal loss or the skewness of returns. In that case, Markowitz's optimal portfolios are only optimal if the returns are normally distributed, because the higher order moments can all be express as a function of mean and variance of returns (page 1, \cite{berndscherer}).
     
-    The main critique point of this optimisation problem is the high sensitivity to small changes in the expected returns vector $\mu$, which, as mentioned before, is defined as the vector of sample mean of the past $T$-periods asset returns. This leads to significantly different portfolio allocations even with an unchanged sample covariance matrix as argued in -\cite{michaudreturnsstability}, which in turn leads to a high portfolio turn-over and to concentrated portfolios, especially when correlations rise. Because returns are difficult to forecast accurately enough to keep the sensitivity within certain limits, some asset managers abstain from using them as input parameter. Portfolio allocations are then computed on the basis of the sample covariance matrix only, which is a risk parameter, hence the name \textit{risk-based} asset allocation. In the case of Markowitz's portfolio optimisation model, risk-based optimal portfolios correspond to minimum volatility portfolios.
+    The main critique point of this optimisation problem is the high sensitivity to small changes in the expected returns vector $\mu$, which, as mentioned before, is defined as the vector of sample mean of the past $T$-periods asset returns, as well as to small changes in the covariance matrix. Specially small perturbations in the vector of expected returns can lead to significantly different portfolio allocations even with an unchanged sample covariance matrix (pages 185-188, \cite{berndscherer}), which in turn leads to a high portfolio turn-over and to concentrated portfolios, especially when correlations rise. Because expected returns are difficult to forecast accurately enough to keep the sensitivity within certain limits, some asset managers abstain from using them as input parameter. Portfolio allocations are then computed on the basis of the sample covariance matrix only, which is a risk parameter, hence the name \textit{risk-based} asset allocation. In the case of Markowitz's portfolio optimisation model, risk-based optimal portfolios correspond to minimum volatility portfolios.
     
-    \begin{definition}[Minimum Volatility Portfolio \cite{berndscherer}]\label{definition:MinimumVolatilityPortfolio}
+    \begin{definition}[Minimum Volatility Portfolio. Page 3, \cite{berndscherer}]\label{definition:MinimumVolatilityPortfolio}
         Consider the set of investable assets $A = \{ a_1, \dots, a_N \}$. Then the \textbf{minimum volatility portfolio}\footnote{Markowitz defines volatility as the standard deviation of returns. Therefore, the minimum volatility portfolio is also the minimum variance portfolio.} is given by the solution to the optimisation problem
         \begin{align*}
-            \arg \min_{w \in \mathbb{R}^N}& \quad w^T \Sigma w, \\
+            MMVP_A := \arg \min_{w \in \mathbb{R}^N}& \quad w^T \Sigma w, \\
             \text{s.t.}& \quad \mathds{1}^T w = 1.
         \end{align*}
     	The minimum volatility portfolio is also a long-short portfolio, i.e. the portfolio might contain negative weights for some assets.
@@ -194,16 +208,13 @@ One of the most important questions that an investor faces is how much of their 
         Set $w_{opt} = \frac{1}{\mathds{1}^T \Tilde{w}_{opt}} \Tilde{w}_{opt}$\;
         \caption{Markowitz Minimum Variance Portfolio Computation}
     \end{algorithm}
-    ~\
-    
-    Note that if $\Sigma$ is singular, we can use the least-squares method to get an optimal portfolio. However, in that case, only $\| \Sigma w_{opt} - \mathds{1} \| = \min_{w \in \mathbb{R}^N} \| \Sigma w - \mathds{1} \|$ holds, and $\Tilde{w}_{opt}$ might not be unique. From now on, we assume that the sample covariance matrix at step 1 has full rank, and is therefore invertible.
     
     \begin{remark}\label{remark:IVPEquivalentToMMVP}
-        For the especial case of a covariance matrix that is invertible and diagonal, i.e. if all assets are uncorrelated and with return variances strictly greater than zero, the inverse variance allocation portfolio is equivalent to the Markowitz minimum variance portfolio. This is because in such case, we would only need to solve $N$ linear equations at step 3 of the algorithm \ref{algorithm:MMVP} of the form
+        For the special case of a covariance matrix that is invertible and diagonal, i.e. if all assets are uncorrelated and with return variances strictly greater than zero, the inverse variance allocation portfolio is equivalent to the Markowitz minimum variance portfolio. This is because in such case, we would only need to solve $N$ linear equations at step 3 of algorithm \ref{algorithm:MMVP} of the form
         \begin{align*}
             \sigma_{i,i} w_i = 1 \quad \text{for} \quad i = \{ 1, \dots, N \},
         \end{align*}
-        where $\sigma_{i,i} = \mathbb{V}[a_i] \in \mathbb{R}_{>0}$ is the returns' variance of the $i$-th asset which lies in the diagonal of $\Sigma$.
+        where $\sigma_{i,i} = \mathbb{V}[a_i] \in \mathbb{R}_{>0}$ is the return's variance of the $i$-th asset which lies in the diagonal of $\Sigma$.
         
         Finally, at step 8, we get that
         \begin{align*}
@@ -226,16 +237,188 @@ One of the most important questions that an investor faces is how much of their 
         %where $\Sigma := diag( \mathbb{V}[a_1], \dots, \mathbb{V}[a_N] )$ such that $a_i$ is the returns distribution of the $i$-th asset. This means that the inverse variance portfolio is the minimum volatility portfolio, that present later, considering all assets uncorrelated.
     \end{remark}
     
-    %References: \cite{markowitzorg}, \cite{berndscherer}
+    \subsubsection{Stability and Markowitz's Curse}\label{section:MarkowitzsCurse}
+        Note that if $\Sigma$ is singular, we can always use the least-squares method to get an optimal portfolio at step 6 of algorithm \ref{algorithm:MMVP}. However, in that case, only $\| \Sigma \Tilde{w}_{opt} - \mathds{1} \| = \min_{w \in \mathbb{R}^N} \| \Sigma w - \mathds{1} \|$ holds, and $\Tilde{w}_{opt}$ might not be unique, although at least one such $\Tilde{w}_{opt}$ always exists. In practical applications singular matrices can appear in two cases:
+    	\begin{enumerate}
+    	    \item If the observed returns of some asset are constant over the whole look-back period. This can happen even if the random variable of the asset returns is not constant. For example, let $a_1, a_2$ be two real-valued random variables representing the returns of two assets. If $a_1$ is constant, then the covariance of asset returns is given by
+    	    \begin{align*}
+    	        Cov[a_1, a_2] &= \mathbb{E}[(a_1 - \mathbb{E}[a_1]) (a_2 - \mathbb{E}[a_2])] = \mathbb{E}[0 (a_2 - \mathbb{E}[a_2])] = 0.
+    	    \end{align*}
+    	    
+    	    Moreover, if $a_1$ is not constant, but its last $T$ observations are all equal, then, using definition \ref{definition:CovarianceMatrix}, the sample covariance matrix is of the form
+    	    \begin{align*}
+    	        \Sigma = \begin{bmatrix}
+    	            0 & 0 \\
+    	            0 & \frac{1}{T} \sum_{t=1}^T (\Bar{r}_{2,t})^2
+    	        \end{bmatrix},
+    	    \end{align*}
+    	    because the first row of $\Tilde{R}$ contains zeros only.
+    	    
+    	    \item If two or more assets present very similar returns' timeseries, leading to a very high correlation between them in absolute terms. Mathematically, this corresponds to two centred vectors of past returns that are either linearly dependent or \textit{almost} linearly dependent. For example, let $\Tilde{r}_1, \Tilde{r}_2 \in \mathbb{R}^T$ the vectors of past $T$ centred return's observations of two assets, such that $\langle \Tilde{r}_1, \Tilde{r}_2 \rangle = \| \Tilde{r}_1 \|_2 \| \Tilde{r}_2 \|_2 (1 - \epsilon)$, for some small $\epsilon > 0$. Then the sample covariance matrix computed as in definition \ref{definition:CovarianceMatrix} using the two centred sample return's vectors is given by
+    	    \begin{align*}
+    	        \Sigma &= \frac{1}{T} \begin{bmatrix}
+    	            \| \Tilde{r}_1 \|_2^2 & \| \Tilde{r}_1 \|_2 \| \Tilde{r}_2 \|_2 (1 - \epsilon) \\
+    	            \| \Tilde{r}_1 \|_2 \| \Tilde{r}_2 \|_2 (1 - \epsilon) & \| \Tilde{r}_2 \|_2^2
+    	        \end{bmatrix} \\
+    	        &= \frac{1}{T} \begin{bmatrix}
+    	            \| \Tilde{r}_1 \|_2 & 0 \\
+    	            0 & \| \Tilde{r}_2 \|_2
+    	        \end{bmatrix} \begin{bmatrix}
+    	             1 & (1 - \epsilon) \\
+    	             (1 - \epsilon) & 1
+    	        \end{bmatrix} \begin{bmatrix}
+    	            \| \Tilde{r}_1 \|_2 & 0 \\
+    	            0 & \| \Tilde{r}_2 \|_2
+    	        \end{bmatrix}
+    	    \end{align*}
+    	    
+    	    The smaller $\epsilon$ is, the \textit{more singular} $\Sigma$ is. This is a problem, even if $\Sigma$ is still invertible, as we will shortly see. Moreover, we will see in section \ref{section:HierarchicalRiskParity} the meaning of the assumption $\langle \Tilde{r}_1, \Tilde{r}_2 \rangle = \| \Tilde{r}_1 \|_2 \| \Tilde{r}_2 \|_2 (1 - \epsilon)$.
+    	    
+    	    This is actually a field of study for developing trading strategies called pairs trading. It consists in identifying pairs of assets whose returns are driven by very similar factors. An example would be Coca-Cola and Pepsi stocks or BMW and Daimler stocks, because they are stock pairs of very similar companies. Once such pairs are identified, pairs trading strategies try to profit from divergences in the return's timeseries of the two assets. For example, if Coca-Cola publishes its earnings report one week before Pepsi and the earnings happen to be better than expected, then the Coca-Cola stock price will most probably rise. Because of the similarities between the two companies, we can expect the earnings of Pepsi to also be better than expected, and already buy its stock while short selling the stock of Coca-Cola. When Pepsi publishes its earnings reports the following week, we can close both positions, and profit from the convergence in their stock-price timeseries to the previous ratio (the Coca-Cola stock price won't react to the earnings or Pepsi, but Pepsi's stock price will). Of course, the profit will depend on Pepsi actually reporting better than expected earnings. Short-selling Coca-Cola's stock is necessary to protect us from price fluctuations that are caused by the general market moving up or down, and that have nothing to do with the idiosyncrasies of the two companies. For example, if both stock prices fall or rise together in the meantime. For these type of strategies, correlations do only help identify potential pair candidates, and cointegration is the actual phenomena that is traded.
+    	\end{enumerate}
+    	
+    	Now that we have explained why singular covariance matrices are a problem and can appear in practical applications relatively often, we can focus on non-singular covariance matrices.
+    	
+    	Some non-singular matrices are \textit{harder} to invert and the solutions to linear programs given by them tend to contain \textit{more noise} than in the case of some other non-singular matrices. To quantify these two concepts mathematically, we turn to numerical linear algebra error theory. We can analyse the instability of the solution computed at step 3 in algorithm \ref{algorithm:MMVP} using the forward error bound of the solution based on the condition number of the input covariance matrix (in this case assumed to be non-singular).
+    	
+    	\begin{definition}[Condition Number of a Matrix. Page 94, \cite{trefethenbau}]
+    	    If $A \in \mathbb{C}^{N \times N}$ is non-singular, and $\| \cdot \|$ is a norm on $\mathbb{C}^{N \times N}$, then
+    	    \begin{align*}
+    	        \kappa(A) := \| A \| \| A^{-1} \|
+    	    \end{align*}
+    	    is called the \textbf{condition number of $A$ with respect to the norm $\| \cdot \|$}.
+    	\end{definition}
+    	
+    	For the results presented here, we compute the condition number with respect to the spectral norm, i.e. with respect to the matrix norm induced by the Euclidean vector norm.
+    		
+    	\begin{theorem}[Residual-based forward Error Bound. Page 61, \cite{bornemann}]
+    		Let $A \in \mathbb{C}^{N \times N}$ be non-singular, $x \in \mathbb{C}^N \setminus \{ 0 \}$ and $b = Ax$. Then for every $\Tilde{x} \in \mathbb{C}^N$ we have
+    		\begin{align*}
+    			\frac{\| \Tilde{x} - x \|_2}{\| x \|_2} \leq \kappa(A) \frac{\| r \|_2}{\| b \|_2},
+    		\end{align*}
+    		where $r := b - A \Tilde{x}$ is the residual and $\| r \| / \| b \|$ is the relative residual norm.
+    	\end{theorem}
+    	
+    	\begin{proof}
+    		Using $x = A^{-1} b$ and the definition of the residual get
+    		\begin{align*}
+    			\| \Tilde{x} - x \|_2 = \| A^{-1} (A \Tilde{x} - b)\|_2 \leq \| A^{-1} \| \| r \|_2 = \kappa(A) \frac{\| r \|_2}{\| A \|_2}.
+    		\end{align*}
+    		
+    		Moreover, $\| b \|_2 = \| A x \|_2 \leq \| A \|_2 \| x \|_2$ gives
+    		\begin{align*}
+    			\frac{1}{\| x \|_2} \leq \frac{\| A \|_2}{\| b \|_2},
+    		\end{align*}
+    		which implies the desired inequality.
+    	\end{proof}
+    	
+    	As we can see, the forward error of the solution computed depends, not only on the relative residual norm, but also on the condition number of the matrix that defines the linear system, in our case the sample covariance matrix. That means, that even if the relative residual norm of the solution is \textit{very small}, i.e. the computed solution appears to be very near to the actual solution, a \textit{large} sample covariance matrix condition number implies that the computed solution might actually be very different to the actual solution.\footnote{The terms \textit{very small} and \textit{large} are, obviously, no mathematical terms. A mathematical definition depends on the problem set-up and the error tolerance that can be assumed according to the practical use of the solution. Here, we would like to focus on how changes in the condition number lead to portfolio instability, rather than on how a high or low condition number in absolute terms affects the use of the computed solution.}
+    	
+    	\begin{theorem}[Page 94, \cite{trefethenbau}]\label{theorem:ConditionNumberEigenvalue}
+    	    Let $A \in \mathbb{C}^{N \times N}$ be a non-singular symmetric matrix and $\lambda_1, \dots, \lambda_N$ its eigenvalues, then the condition number of $A$ with respect to the spectral norm is given by
+    	    \begin{align*}
+    	        \kappa_2(A) := \frac{\max_{i = \{1, \dots, N \} } | \lambda_i |}{\min_{i = \{1, \dots, N \} } | \lambda_i |}.
+    	    \end{align*}
+    	\end{theorem}
+    	
+    	\begin{proof}
+    	    If $A \in \mathbb{C}^{N \times N}$ is a non-singular symmetric matrix, then we know that $A$ can be unitarily diagonalised:
+    	    \begin{align*}
+    	        A = U \Lambda U^H,
+    	    \end{align*}
+    	    where $U \in \mathbb{C}^{N \times N}$ is an unitary matrix and $\Lambda := diag(\lambda_1, \dots, \lambda_N) \in \mathbb{C}^{N \times N}$ is a diagonal matrix that contains the eigenvalues of $A$ in the diagonal. Using the fact that the spectral norm is unitarily invariant, we get
+    	    \begin{align*}
+    	        \kappa_2(A) &= \| A \|_2 \| A^{-1} \|_2 \\
+    	        &= \| U \Lambda U^H \|_2 \| (U \Lambda U^H)^{-1} \|_2 \\
+    	        &= \| \Lambda \|_2 \| \Lambda^{-1} \|_2 \\
+    	        &= \left( \max_{i = \{1, \dots, N \} } | \lambda_i | \right) \left( \frac{1}{\min_{i = \{1, \dots, N \} } | \lambda_i |} \right). = \frac{\max_{i = \{1, \dots, N \} } | \lambda_i |}{\min_{i = \{1, \dots, N \} } | \lambda_i |}.
+    	    \end{align*}
+    	\end{proof}
+    	
+    	We now focus on the correlation matrix as source of instability. Using the decomposition of the covariance matrix from definition \ref{definition:CovarianceMatrix}
+    	\begin{align*}
+    	    \Sigma = S P S,
+    	\end{align*}
+    	where $S$ is the standard deviation matrix and $P$ the correlation matrix, and the result of theorem \ref{theorem:ConditionNumberEigenvalue}, we see that condition number of the covariance matrix is minimal for a fixed standard deviation matrix when the correlation matrix is a diagonal matrix. This follows from the fact that the diagonal entries of the correlation matrix are always equal to $1$, because all assets are perfectly correlated to themselves, hence the only diagonal correlation matrix that exists is the identity matrix. A diagonal correlation matrix corresponds to a set of assets that are perfectly uncorrelated. As the relative difference in the standard deviation of the assets and their correlations rise, the condition number of the corresponding sample covariance matrix also rises. This tends to happen during periods of market stress, when investors fear the fall of asset prices across asset classes, sectors and countries. However, it is exactly during those periods of market stress when investors do need to make the most out of diversification to reduce the impact of price fall in their aggregated portfolio. This issue is what López de Prado calls \textit{Markowitz's curse}:
+    	
+    	\begin{displayquote}[Page 3, \cite{lopezmain}]
+    	    "The more correlated the investments, the greater the need for diversification, and yet the more likely we will receive unstable solutions. The benefits of diversification often are more than offset by estimation errors."
+        \end{displayquote}
+        
+        Moreover, periods of market stress tend to start suddenly, and investors reactions are drastic, which in turn can cause sudden sharp rises in the condition number of the covariance matrix. As a result, the covariance matrices used to compute the optimal portfolios at the last and first rebalancing point just before and just after the period of market stress respectively tend to be very different, potentially generating very different optimal allocations. This is one of the reasons why Markowitz's minimum volatility portfolios tend to be more unstable across time, generating higher transaction costs.
+        
+        Apart from rises in correlations, the condition number of the covariance matrix is affected by the number of assets in the set of investable assets and by the number of past return's observations used for its computation. To illustrate how the condition number of the covariance matrix rises as not-perfectly-uncorrelated assets, i.e. correlated assets, are added to the set of investable assets we want to consider to construct our portfolio, we have performed a simulation. We took the components of the S\&P 500 index, which is an index that tracks the 500 biggest companies in the US by free floating market capitalisation (number of shares outstanding that can be traded times the current price of one share), as of October 2021. In total, we had 505 companies in the index (the index does not always contain exactly 500 companies). We computed the covariance and the corresponding correlation matrix of the assets by adding them one by one to the set of investable assets in random order. We performed this simulation using the return's data of the past $510$, $765$, $892$ and $1020$ days from the December 24, 2021. These correspond to approximately $2$, $3.5$, $4$ and $4.5$ years worth of trading data (one year contains around $255$ days of trading, the rest are weekends and holidays). The results are plotted in figures \ref{fig:Cov_corr_Cond_Simulation_T510_N497}, \ref{fig:Cov_corr_Cond_Simulation_T765_N488}, \ref{fig:Cov_corr_Cond_Simulation_T892_N486} and \ref{fig:Cov_corr_Cond_Simulation_T1020_N484}.
+        
+        \begin{figure}[p]
+    		\centering
+    		\includegraphics[width=1.15\textwidth]{bilder/Cov_corr_Cond_Simulation_T510_N497.png}
+    		\caption{Condition Number of Covariance and Correlation Matrices Computed by Adding $497$ Assets One by One to the Set of Investable Assets and Using $510$ Days Past Return's Observations until 24/12/2021.}
+    		\label{fig:Cov_corr_Cond_Simulation_T510_N497}
+    	\end{figure}
+    	
+    	\begin{figure}[p]
+    		\centering
+    		\includegraphics[width=1.15\textwidth]{bilder/Cov_corr_Cond_Simulation_T765_N488.png}
+    		\caption{Condition Number of Covariance and Correlation Matrices Computed by Adding $488$ Assets One by One to the Set of Investable Assets and Using $765$ Days Past Return's Observations until 24/12/2021.}
+    		\label{fig:Cov_corr_Cond_Simulation_T765_N488}
+    	\end{figure}
+    	
+    	\begin{figure}[p]
+    		\centering
+    		\includegraphics[width=1.15\textwidth]{bilder/Cov_corr_Cond_Simulation_T892_N486.png}
+    		\caption{Condition Number of Covariance and Correlation Matrices Computed by Adding $486$ Assets One by One to the Set of Investable Assets and Using $892$ Days Past Return's Observations until 24/12/2021.}
+    		\label{fig:Cov_corr_Cond_Simulation_T892_N486}
+    	\end{figure}
+    	
+    	\begin{figure}[p]
+    		\centering
+    		\includegraphics[width=1.15\textwidth]{bilder/Cov_corr_Cond_Simulation_T1020_N484.png}
+    		\caption{Condition Number of Covariance and Correlation Matrices Computed by Adding $484$ Assets One by One to the Set of Investable Assets and Using $1020$ Days Past Return's Observations until 24/12/2021.}
+    		\label{fig:Cov_corr_Cond_Simulation_T1020_N484}
+    	\end{figure}
+    	
+    	In these figures, we can observe several interesting findings:
+    	\begin{enumerate}
+    	    \item The number of assets in each simulation run decreases as the number of past daily-return's observations rises. Of the $505$ assets in the S\&P 500 index, there is enough data to compute covariance and correlation matrices with $255$ past daily-return's observations for $497$ assets. This number decreases to $488$ for the run with $765$ daily-return's observations, to $486$ for the run with $892$ daily-return's observations and to $484$ assets for the run with $1020$ daily-return's observations.
+    	    
+    	    \item There are some big jumps in the condition number at some point in all figures. This is caused by the addition of a couple of assets that are highly correlated to the others (jumps in the condition number of the correlation matrix) or that present very high variance of returns (jumps in the covariance matrix). This happens at different points in each of the figures, because the random order in which assets were added to the computation was not the same across all simulations, however they are caused by the same assets.
+    	    
+    	    \item A higher number of past daily-return's observations used in the computation of covariance and correlation matrices resulted in lower condition numbers. This is not a surprise, because using a matrix $R$ as in definition \ref{definition:CovarianceMatrix} of bigger size means more degrees of freedom for the computation of covariances and correlations. Hence, the invertibility of the covariance matrix is not guaranteed, but it is more probable, simply because the probability of falsely estimating that two assets are highly correlated due to low number of observations is lower. Nevertheless, using more past return's observations is not always possible. In the simulation plotted in figure \ref{fig:Cov_corr_Cond_Simulation_T1020_N484}, the ratio between past return's observations and number of assets is around $2.1$. If an asset manager like the Norwegian Sovereign Wealth Fund had to use such a ratio, they would need more than $74$ years of past return's data, because their portfolio contains holdings in more than $9000$ companies (as claimed in the website of the Norges Bank Investment Management \url{https://www.nbim.no/} as of Dec. 28, 2021). Needless to say that this is impossible, because most companies have not existed for so long. Other asset managers, specially pension funds, do also hold portfolios with similar number of assets. Finally, using a higher number of past return's observations has its disadvantages, as we will see later in section \ref{section:CovarianceMatrixShrinking}.
+    	    
+    	    \item There is a clear trend in the condition numbers, which rise exponentially or almost exponentially as the number of assets increases.
+    	\end{enumerate}
+    	
+    	Now that we have defined some theory for the stability of Markowitz's minimum volatility portfolios, we can proceed to show the results of the practical implementation.
+    	
+    	%In figure \ref{fig:LopezdePrado_Corr_Eig_Plot}, we can see the eigenvalues of different types of correlation matrices plotted from López de Prado's paper \cite{lopezmain}, in this case correlations matrices of size $50$. The ideal correlation matrix is the identity matrix, which has $\lambda = 1$ as unique eigenvalue and hence condition number equal to $1$. As asset correlations rise, the largest eigenvalue in modulo of the correlation matrix increases while the smallest eigenvalue in modulo decreases leading to an increase of its condition number.
+    	%
+    	%\begin{figure}[h!]
+    	%	\centering
+    	%	\includegraphics[width=1.15\textwidth]{bilder/LopezdePrado_Corr_Eig_Plot.png}
+    	%	\caption{Visualisation of Markowitz's Curse: Eigenvalues of Different Types of Correlation Matrices of Size $50x50$ Computed by López de Prado in \cite{lopezmain} (page 19).}
+    	%	\label{fig:LopezdePrado_Corr_Eig_Plot}
+    	%\end{figure}
+        
+        %References: \cite{markowitzorg}, \cite{berndscherer}
     
     \subsection{Practical Implementation of Naive Portfolio Allocation Methods}\label{section:PracticalImplementationofNaivePortfolioAllocationMethods}
-        In this subsection, we present the results of the practical implementation of the naive portfolio allocation methods described in definitions \ref{definition:EqualWeightPortfolio} and \ref{definition:InverseVariancePortfolio}, which serve as benchmarks for the Markowitz's minimum volatility portfolios. See appendix \ref{appendix:PracticalImplementationFramework} for details about the selected asset as well as other parameters and tools used to generate the results presented here.
+        In this subsection, we present the results of the practical implementation of the naive portfolio allocation methods described in definitions \ref{definition:EqualWeightPortfolio} and \ref{definition:InverseVariancePortfolio}, which will serve as benchmarks for the Markowitz's minimum volatility portfolios.
+        
+        % Backtesting settings.
+        
+        In total, 12 portfolios are computed, corresponding to a backtesting period from January 1, 2020 to December 31, 2020 and monthly rebalancing-interval. The rebalancing occurs on the first trading day of each month at 10:00 AM New York time. An initial account balance of 10 million U.S. dollars is assumed.%, and margin calls are deactivated in order to better simulate the theoretical portfolios computed. Margin calls are forced selling, or buying in case of short positions (see footnote \ref{Footnote:ShortSelling} in page \pageref{Footnote:ShortSelling}), when the investors deposit for the position falls below a minimum set by the broker. Margin calls usually happen after the price of the asset hold moves in the opposite direction of the trade, i.e. falls 
+        
+        For the computation of portfolio weights, the daily returns of the past 60 days are used as input. This last setting does not affect the equal weight portfolio construction method, because it does not use any past data as input. The reason why we use 60 days of past data is because we need at least 20 periods of data to fulfil a necessary condition for the invertibility of the sample covariance matrix, and 60 days corresponds to 3 full trading months of data.
+        
+        In our practical implementation framework, we have selected $N = 20$ assets, therefore $T \geq 20$ must hold. This does however not guarantee that the covariance matrix has full rank and hence is invertible, because the condition $N \leq T$ is not a sufficient condition for that. For more details about the assets selected, see appendix \ref{appendix:PracticalImplementationFramework}.
+    	
+    	There is not a single true underlying covariance matrix, but rather one that changes over time according to human behaviour and psychology, else every investor could compute optimal portfolios that would remain optimal over time. Therefore, there is a trade-off between higher values of $T$, which lead to a more stable, with higher probability non-singular sample covariance matrix over time but at the same time make the portfolio optimisation less sensitive to changes in market trends and regimes, and lower values of $T$, which make the covariance matrix estimation process more sensitive to changes in market trends and regimes but make the portfolio optimisation process less stable. The asset manager should always take this into account, in order to reduce noise in the estimation while still using input parameters that allow to promptly react to changes in the market. In the case of our practical implementation framework, we could, of course, have chosen a different value for $T$, and we do not have any mathematical reason to prefer $T=60$ to $T=59$ or $T=100$, for example. However, optimising the covariance matrix estimation process with respect to the number of observations used for its computation is not part of this work, and a 3-month past-data-window seems acceptable for the estimation of portfolios with a holding period of one month (optimal portfolios are computed and rebalanced each month).
         
         % Tools to analyse PFs: HHI for concentration, risk-adjusted returns, stability: turn-over volume, what else?
         
         The portfolios generated in backtesting by each of the naive optimisation methods and the other methods defined later are compared with respect to risk-adjusted return, concentration and stability. The Sharpe ratio is the chosen measure to quantify risk-adjusted returns. To assess concentration, we will use a normalised version of the Herfindahl-Hirsch-Index (HHI). The normalisation step is necessary, because we will allow for short positions in our portfolios, and the HHI is only defined for positive portfolio weights. We will measure stability via the turnover of the portfolio.
         
-        \begin{definition}[Sharpe Ratio \cite{franzen}] % Page 216
+        \begin{definition}[Sharpe Ratio. Page 216, \cite{franzen}] % Page 216
             Let $\mu_P \in \mathbb{R}$ be the return of the portfolio $P$ over a given period of time and $\sigma_P \in \mathbb{R}_{\geq 0}$ its standard deviation over that same period of time. Moreover, let $R_f \in \mathbb{R}$ be the risk-free rate of that given period. Then the \textbf{Sharpe Ratio of portfolio $P$ over the given period} $SR_P \in \mathbb{R}$ is given by
             \begin{align*}
                 SR_P := \frac{\mu_P - R_f}{\sigma_P}.
@@ -263,7 +446,7 @@ One of the most important questions that an investor faces is how much of their 
         %    \todo{add remark, that min entropy if equal weighted portfolio}
         %\end{remark}
         
-        \begin{definition}[Herfindahl-Hirsch-Index \cite{chammas}] % Page 71 (85 of the PDF)
+        \begin{definition}[Herfindahl-Hirsch-Index. Page 71, \cite{chammas}] % Page 71 (85 of the PDF)
             Let $P = [w_i] \in \mathbb{R}_{\geq 0}^N$ be a portfolio, such that $\sum_{i=1}^N w_i = 1$. We define the \textbf{Herfindahl-Hirsch-Index (HHI)} as
             \begin{align*}
                 HHI_P := \| P \|_2^2.
@@ -275,7 +458,7 @@ One of the most important questions that an investor faces is how much of their 
             Obviously, $nHHI_P \leq HHI_P$ for all portfolios $P \in \mathbb{R}^N$.
         \end{definition}
         
-        \begin{definition}[Turnover \cite{equalweight}]
+        \begin{definition}[Turnover. Page 1929, \cite{equalweight}]
             Consider a portfolio $P$ with $N$ assets. Let $w_{j,t+1} \in \mathbb{R}$ be the portfolio weight assigned to asset $i$ at time $t$ by the portfolio optimisation method, and let $w_{j,t^+} \in \mathbb{R}$ be the portfolio weight of asset $i$ before rebalancing at time $t+1$ for $i=1, \dots, N$ and $t=0, \dots, T$. The turnover of the portfolio $P$ is defined as
             \begin{align*}
                 TO_P := \frac{1}{T} \sum_{t=0}^T \sum_{i=1}^N \left( \left| w_{i, t+1} - w_{i, t^+} \right| \right),
@@ -285,7 +468,7 @@ One of the most important questions that an investor faces is how much of their 
         
         This turnover quantity can be interpreted as the average percentage of wealth traded at each rebalancing point.
         
-        Now that we have defined the 3 measures which we will use to compared the portfolios resulting from the different portfolio construction models across the backtesting period, we proceed to present the results of the 2 naive portfolio optimisation models from definitions \ref{definition:EqualWeightPortfolio} and \ref{definition:InverseVariancePortfolio}. The vectors with the optimal portfolios computed using these 2 naive methods can be found in appendices \ref{appendix:EWPortfolios} and \ref{appendix:IVPortfolios}.
+        Now that we have defined the 3 measures which we will use to compare the portfolios resulting from the different portfolio construction models across the backtesting period, we proceed to present the results of the 2 naive portfolio optimisation models from definitions \ref{definition:EqualWeightPortfolio} and \ref{definition:InverseVariancePortfolio}. The vectors with the optimal portfolios computed using these 2 naive methods can be found in appendices \ref{appendix:EWPortfolios} and \ref{appendix:IVPortfolios}.
         
         In figure \ref{fig:ivp_allocation_plot}, a visual representation of the target allocation of all 20 assets in the IVP over the backtesting period is presented. Most of the portfolio's wealth is allocated to ISTB (iShares Core 1-5 Year USD Bond ETF) and IAGG (iShares Core International Aggregate Bond ETF). The allocation to the first drops at the start of the COVID-19 crisis, while the allocation of the second rises. The allocation to IMTB (iShares 5-10 Year USD Bond ETF) rises after the start of the COVID-19 crisis. For the rest of assets the allocation remains relatively stable over the whole backtesting period. Finally, the high allocation to fixed income ETFs is not surprising, because they tend to show lower variance of returns, while the allocation to equity, including real-estate, and commodity ETPs remains low due to the higher variance of returns that they tend to present.
         
@@ -293,7 +476,7 @@ One of the most important questions that an investor faces is how much of their 
         \begin{figure}[h]
             \centering
             \includegraphics[width=1.15\textwidth]{bilder/IVP_allocation_plot.png}
-            \caption{IVP Target Allocation over Time}
+            \caption{IVP Target Allocation of the Practical Implementation Portfolio Composed of 20 Assets at Each of the 12 Rebalancing Points in the Backtesting Period from 01/01/2020 to 31/12/2020.}
             \label{fig:ivp_allocation_plot}
         \end{figure}
         
@@ -302,63 +485,14 @@ One of the most important questions that an investor faces is how much of their 
         Figure \ref{fig:nHHI_EWP_and_IVP} shows the evolution of the nHHI of the 2 naive portfolio allocation models described above. The nHHI of the equal weight portfolios is low and stays the same over time, as expected. In the case of IVP, the nHHI rises with the start of the COVID-19 crisis, and then halves, mostly because of a reduction in the allocation to ISTB as explained previously.
         
         % Data
-        \begin{figure}[h]
+        \begin{figure}[h!]
             \centering
             \includegraphics[width=1.15\textwidth]{bilder/nHHI_EWP_and_IVP.png}
-            \caption{nHHI over Time}
+            \caption{nHHI of the Equal Weight and Inverse Variance Portfolios Composed of 20 Assets at Each of the 12 Rebalancing Points in the Backtesting Period from 01/01/2020 to 31/12/2020.}
             \label{fig:nHHI_EWP_and_IVP}
         \end{figure}
         
-        Table \ref{tab:ewp_ivp_sharpe_turnover} presents the risk-adjusted returns and turnover of both naive strategies. Inverse variance portfolios achieve a Sharpe ratio almost three times higher than the Sharpe ratio of the equal weight portfolio. The turnover of the IVP is also higher than the turnover of the EWP by a factor of 2.
-        
-        % Data
-        \begin{table}[h]
-            \centering
-            \begin{tabular}{crr}
-             \textbf{Portfolio Optimisation Method} & \textbf{Sharpe Ratio} & \textbf{Turnover} \\
-             \hline
-             EWP & 0.36 & 0.003634 \\
-             IVP & 1.008 & 0.007396
-            \end{tabular}
-            \caption{Sharpe Ratio and Turnover Figures}
-            \label{tab:ewp_ivp_sharpe_turnover}
-        \end{table}
-        
-    \subsection{Practical Implementation of Markowitz's Minimum Volatility Portfolios}\label{section:MarkowitzPracticalImplementation}
-        %\textit{In this section, I will describe the optimal portfolios computed within the practical implementation framework}
-        
-        Now, we continue with the results of the implementation of Markowitz's minimum volatility portfolios from definition \ref{definition:MinimumVolatilityPortfolio}. But first, we describe how the algorithm \ref{algorithm:MMVP} was implemented in detail.
-    	
-    	For the practical implementation, we use SciPy's linear system solver which can take certain structural properties of the quadratic matrix that defines the linear system, and uses that information to select the method with which to solve the linear system. We take advantage of the fact that the sample covariance matrix is always symmetric and positive-semidefinite. In case the sample covariance matrix has full rank, then it is even positive-definte. Hence, we first assume the sample covariance matrix to be positive-definite, and use this structural property as input for the \texttt{scipy.linalg.solve} method. As a result, the solver will try to solve the linear equation system in definition \ref{definition:MinimumVolatilityPortfolio} using the \textit{LAPACK ?POSV linear equation routine} \cite{scipylinalgsolve}, which tries to solve linear equation systems using the Cholesky decomposition \cite{lapackposv}. In case the method fails to compute a solution to the linear system, then we know that the sample covariance matrix does not have full rank, in which case the practical implementation turns to \texttt{numpy.linalg.lstsq}, which is a NumPy method to compute the least-squares solution to a linear matrix equation \cite{lstsqnumpy}. However, all the covariance matrices computed during the backtesting period have full rank, and the least-squares solver was not used to compute any of the minimum variance portfolios presented here.
-    	
-    	\begin{theorem}[Cholesky Decomposition]\todo[inline]{Citing Liesens lecture notes ok?}
-    		Let $A \in \mathbb{C}^{N \times N}$ be a symmetric positive-definite matrix, then there exists a uniquely determined lower triangular matrix $L \in \mathbb{C}^{N \times N}$ with positive diagonal elements, such that
-    		\begin{align}
-    			A = L L^H.
-    		\end{align}
-    	\end{theorem}
-    	
-    	Figure \ref{fig:MMVP_allocation_plot} shows the evolution of allocations in Markowitz minimum volatility portfolios over time. The changes in allocation are clearly more pronounced than in the case of IVPs (see figure \ref{fig:ivp_allocation_plot}), specially around the start of the COVID-19 (March 2020) crisis when correlations as well as the variance of returns rose and all asset classes suffered negative returns.
-        
-        % Data
-        \begin{figure}[h]
-            \centering
-            \includegraphics[width=1.15\textwidth]{bilder/MMVP_allocation_plot.png}
-            \caption{MMVP Target Allocation over Time}
-            \label{fig:MMVP_allocation_plot}
-        \end{figure}
-        
-        The concentration of MMVPs measured by the nHHI remains however lower than in IVPs over the whole backtesting period as figure \ref{fig:nHHI_EWP_IVP_MMVP} shows. Nevertheless, a drop in concentration can be observed following the start of the COVID-19 crisis.
-        
-        % Data
-        \begin{figure}[h]
-            \centering
-            \includegraphics[width=1.15\textwidth]{bilder/nHHI_EWP_IVP_MMVP.png}
-            \caption{nHHIn over Time}
-            \label{fig:nHHI_EWP_IVP_MMVP}
-        \end{figure}
-        
-        With respect to risk-adjusted returns, MMVPs deliver significantly worse results than both naive allocation methods. The Sharpe ratio of Markowitz's strategy is even negative, i.e. MMVPs fail to generate positive returns during the backtesting period. Moreover, the turnover is also significantly higher than in the case of both naive portfolio optimisation models, as seen in table \ref{tab:ewp_ivp_mmvp_sharpe_turnover}.
+        Table \ref{tab:ewp_ivp_sharpe_turnover} presents the risk-adjusted returns and turnover of both naive strategies. Inverse variance portfolios achieve a Sharpe ratio almost three times higher than the Sharpe ratio of the equal weight portfolios. The turnover of the IVP is also higher than the turnover of the EWP by a factor of 2.
         
         % Data
         \begin{table}[h!]
@@ -367,137 +501,105 @@ One of the most important questions that an investor faces is how much of their 
              \textbf{Portfolio Optimisation Method} & \textbf{Sharpe Ratio} & \textbf{Turnover} \\
              \hline
              EWP & 0.36 & 0.003634 \\
+             IVP & 1.008 & 0.007396
+            \end{tabular}
+            \caption{Sharpe Ratio and Turnover Figures of the Equal Weight and Inverse Variance Portfolios for the Backtesting Period from 01/01/2020 to 31/12/2020.}
+            \label{tab:ewp_ivp_sharpe_turnover}
+        \end{table}
+        
+    \subsection{Practical Implementation of Markowitz's Minimum Volatility Portfolios}\label{section:MarkowitzPracticalImplementation}
+        %\textit{In this section, I will describe the optimal portfolios computed within the practical implementation framework}
+        
+        Now, we continue with the results of the implementation of Markowitz's minimum volatility portfolios from definition \ref{definition:MinimumVolatilityPortfolio}. We refer to section \ref{section:PracticalImplementationofNaivePortfolioAllocationMethods} for details about the backtesting settings and preformance measures, as well as to appendix \ref{appendix:PracticalImplementationFramework} for details about the $20$ selected assets and to appendix \ref{appendix:MMVPortfolios} for the 12 computed Markowitz's minimum volatility portfolios. But first, we describe how the algorithm \ref{algorithm:MMVP} was implemented in detail.
+    	
+    	For the practical implementation, we use SciPy's linear system solver which can take certain structural properties of the quadratic matrix that defines the linear system, and uses that information to select the method with which to solve the linear system. We take advantage of the fact that the sample covariance matrix is always symmetric and positive-semidefinite. In case the sample covariance matrix has full rank, then it is even positive-definite. Hence, we first assume the sample covariance matrix to be positive-definite, and use this structural property as input for the \texttt{scipy.linalg.solve} method. As a result, the solver will try to solve the linear equation system in definition \ref{definition:MinimumVolatilityPortfolio} using the \textit{LAPACK ?POSV linear equation routine} \cite{scipylinalgsolve}, which tries to solve linear equation systems using the Cholesky decomposition \cite{lapackposv}. In case the method fails to compute a solution to the linear system, then we know that the sample covariance matrix does not have full rank, in which case the practical implementation turns to \texttt{numpy.linalg.lstsq}, which is a NumPy method to compute the least-squares solution to a linear matrix equation \cite{lstsqnumpy}. However, all the covariance matrices computed during the backtesting period have full rank, and the least-squares solver was not used to compute any of the minimum variance portfolios presented here.
+    	
+    	\begin{theorem}[Cholesky Decomposition. Pages 307-308, \cite{liesenlinalg}]
+    		Let $A \in \mathbb{C}^{N \times N}$ be a symmetric positive-definite matrix, then there exists a uniquely determined lower triangular matrix $L \in \mathbb{C}^{N \times N}$ with positive diagonal elements, such that
+    		\begin{align}
+    			A = L L^H.
+    		\end{align}
+    	\end{theorem}
+    	
+    	Figure \ref{fig:MMVP_allocation_plot} shows the evolution of allocations in Markowitz minimum volatility portfolios over time. The changes in allocation are clearly more pronounced than in the case of IVPs (see figure \ref{fig:ivp_allocation_plot}), specially around the start of the COVID-19 (March 2020) crisis when correlations as well as the variances of returns rose and all asset classes suffered negative returns.
+        
+        % Data
+        \begin{figure}[p]
+            \centering
+            \includegraphics[width=1.15\textwidth]{bilder/MMVP_allocation_plot.png}
+            \caption{MMVP Target Allocation of the Practical Implementation Portfolio Composed of 20 Assets at Each of the 12 Rebalancing Points in the Backtesting Period from 01/01/2020 to 31/12/2020.}
+            \label{fig:MMVP_allocation_plot}
+        \end{figure}
+        
+        The concentration of MMVPs measured by the nHHI remains however lower than in IVPs over the whole backtesting period as figure \ref{fig:nHHI_EWP_IVP_MMVP} shows. Nevertheless, a drop in concentration can be observed following the start of the COVID-19 crisis.
+        
+        % Data
+        \begin{figure}[p]
+            \centering
+            \includegraphics[width=1.15\textwidth]{bilder/nHHI_EWP_IVP_MMVP.png}
+            \caption{nHHIn of the Equal Weight, Inverse Variance and Markowitz Minimum Volatility Portfolios Composed of 20 Assets at Each of the 12 Rebalancing Points in the Backtesting Period from 01/01/2020 to 31/12/2020.}
+            \label{fig:nHHI_EWP_IVP_MMVP}
+        \end{figure}
+        
+        With respect to risk-adjusted returns, MMVPs deliver significantly worse results than both naive allocation methods. The Sharpe ratio of Markowitz's strategy is even negative, i.e. MMVPs fail to generate positive returns during the backtesting period. Moreover, the turnover is also significantly higher than in the case of both naive portfolio optimisation models, as seen in table \ref{tab:ewp_ivp_mmvp_sharpe_turnover}.
+        
+        % Data
+        \begin{table}[h]
+            \centering
+            \begin{tabular}{crr}
+             \textbf{Portfolio Optimisation Method} & \textbf{Sharpe Ratio} & \textbf{Turnover} \\
+             \hline
+             EWP & 0.36 & 0.003634 \\
              IVP & 1.008 & 0.007396 \\
              MMVP & -0.017 & 0.018856
             \end{tabular}
-            \caption{Sharpe Ratio and Turnover Figures}
+            \caption{Sharpe Ratio and Turnover Figures of the Equal Weight, Inverse Variance Portfolios and Markowitz Minimum Volatility for the Backtesting Period from 01/01/2020 to 31/12/2020.}
             \label{tab:ewp_ivp_mmvp_sharpe_turnover}
         \end{table}
         
-        \subsubsection{Markowitz's Curse}\label{section:MarkowitzsCurse}
-            %\textit{Using the results of the practical implementation, the concept of Markowitz's is defined here. Moreover, I will provide some mathematical explanation by computing the condition number of the covariance matrices used in the practical implementation and relating them to the error bounds we saw in Numerical Linear Algebra I}
-            \todo[inline]{Liesen: Grundsätzliche Frage: Geht es hier um Matrizen, die möglichst nah an I sein sollen oder um gut konditionierte Matrizen? Das sollte noch besser herausgearbeitet werden.}
-            
-            %References: \cite{lopezmain}
+        In section \ref{section:MarkowitzsCurse} we have laid out numerical linear algebra error theory applied to the analysis of Markowitz's model stability. We now quantify the sources of instability and instability itself in the 12 portfolios computed in our backtest.
+        
+        To quantify how correlated assets are, we define the following distance measure for the distance between each of the computed correlation matrices corresponding to each sample covariance matrix of our practical implementation and the \textit{ideal} correlation matrix\footnote{We consider the identity matrix as the ideal correlation matrix because it maximises the stability of the optimisation method, as we saw in section \ref{section:MarkowitzsCurse}. Furthermore, of all possible correlation matrices, a set of perfectly uncorrelated assets used as input for Markowitz's portfolio optimisation method results in the portfolio with the lowest variance. For other purposes, a correlation matrix equal to the identity matrix might not be ideal.}, i.e. the identity matrix.
+        
+        \begin{definition}\label{definition:DistanceToIdealCorrMatrix}
+		    Let $\Omega \in \mathbb{R}^{N \times N}$ be a correlation matrix as in definition \ref{definition:CovarianceMatrix}. We define the \textbf{distance of $\Omega$ to the ideal correlation matrix} as
+		    \begin{align*}
+		        \| \Omega - I_N \|_F,
+		    \end{align*}
+		    where $\| \cdot \|_F$ is the Frobenius norm and $I_N$ is the $N$-dimensional identity matrix. Obviously,
+		    \begin{align*}
+		        \| \Omega - I_N \|_F \geq 0
+		    \end{align*}
+		    holds for all correlation matrices $\Omega \in \mathbb{R}^{N \times N}$.
+		\end{definition}
+		
+		The distance of a correlation matrix to the ideal correlation matrix that we have just defined is a measure of how much different assets are correlated (positively as well as negatively). The more correlated assets are, the higher the distance to the ideal correlation matrix, which corresponds to all assets being completely uncorrelated.
+		
+		Figure \ref{fig:Corr_dist_to_id} shows the change in the distance of the correlation matrices corresponding to the computed covariance matrices over the backtesting period. We can appreciate a steep rise in the distance coinciding with the start of the COVID-19 crisis, showing how strong the correlations between the $20$ assets in our universe rose. Correlations remained high until October, and later failed to get back down to the levels observed at the beginning of the backtesting period. In this figure, we can also observe that the rises can be very sudden and steep.
+		
+		\begin{figure}[h]
+		    \centering
+		    \includegraphics[width=1.15\textwidth]{bilder/Corr_dist_to_id.png}
+		    \caption{20 Assets Correlation Matrix Distance to the Ideal Correlation Matrix at Each of the 12 Rebalancing Points in the Backtesting Period from 01/01/2020 to 31/12/2020.}
+		    \label{fig:Corr_dist_to_id}
+		\end{figure}
+		
+		We quantify the condition number with respect to the spectral norm of the covariance matrices used for the computation of Markowitz minimum volatility portfolios in our practical implementation, as well as the ones of the correlation and variance matrices corresponding to those covariance matrices. The results are plotted in figure \ref{fig:Cov_corr_var_matrix_cond}. A clear sudden sharp rise in the condition number of the sample covariance matrix can be observed at the beginning of the COVID-19 crisis, when lock-downs and other measures that slowed down economies worldwide were enacted. This rise in the condition number of the sample covariance matrix was initially driven by a steep rise in correlations, as the condition number of the correlation matrix and figure \ref{fig:Corr_dist_to_id} show. However, as the variances of returns across the assets in our portfolio universe rose, they also got to similar levels, which in turn led to a sharp drop in the condition number of the variance, and hence also of the covariance, matrix. Economically speaking, as the COVID-19 crisis started, investors initially decided to liquidate their holdings across all assets classes, and increase their cash allocation. This led to a reduction in the relatively wide difference in returns' variance between more conservative asset classes, like fixed-income, and more aggressive asset classes, like equities and commodities, that prevails during normal times. In second half of the year, correlations remained high, and variances returned to more normal levels, leading to a new increase in the condition number of the sample covariance matrix to even higher levels than in the first half of the year, as the advantageous (for the condition number) effects of higher, more similar variances across the assets disappeared.
     		
-    		To picture the source of instability in the optimisation problem presented in definition \ref{definition:MinimumVolatilityPortfolio}, we can define a forward error bound for its solution based on the condition number of the matrix that defines it, i.e. the sample covariance matrix.
-    		
-    		\begin{definition}[Condition Number of a Matrix]\todo[inline]{Citing Liesens lecture notes ok?}
-    		    If $A \in \mathbb{C}^{N \times N}$ is non-singular, and $\| \cdot \|$ is a norm on $\mathbb{C}^{N \times N}$, then
-    		    \begin{align*}
-    		        \kappa(A) := \| A \| \| A^{-1} \|
-    		    \end{align*}
-    		    is called the \textbf{condition number of $A$ with respect to the norm $\| \cdot \|$}.
-    		\end{definition}
-    		
-    		For the results presented here, we compute the condition number with respect to the spectral norm, i.e. with respect to the matrix norm induced by the Euclidean vector norm.
-    		
-    		\begin{theorem}[Residual-based forward Error Bound]\todo[inline]{Citing Liesens lecture notes ok?}
-    			Let $A \in \mathbb{C}^{N \times N}$ be non-singular, $x \in \mathbb{C}^N \setminus \{ 0 \}$ and $b = Ax$. Then for every $\Tilde{x} \in \mathbb{C}^N$ we have
-    			\begin{align*}
-    				\frac{\| \Tilde{x} - x \|_2}{\| x \|_2} \leq \kappa(A) \frac{\| r \|_2}{\| b \|_2},
-    			\end{align*}
-    			where $r := b - A \Tilde{x}$ is the residual and $\| r \| / \| b \|$ is the relative residual norm.
-    		\end{theorem}
-    		
-    		\begin{proof}
-    			Using $x = A^{-1} b$ and the definition of the residual get
-    			\begin{align*}
-    				\| \Tilde{x} - x \|_2 = \| A^{-1} (A \Tilde{x} - b)\|_2 \leq \| A^{-1} \| \| r \|_2 = \kappa(A) \frac{\| r \|_2}{\| A \|_2}.
-    			\end{align*}
-    			
-    			Moreover, $\| b \|_2 \leq \| A \|_2 \| x \|_2$ gives
-    			\begin{align*}
-    				\frac{1}{\| x \|_2} \leq \frac{\| A \|_2}{\| b \|_2},
-    			\end{align*}
-    			which implies the desired inequality.
-    		\end{proof}
-    		
-    		As we can see, the forward error of the solution computed depends, not only on the relative residual norm, but also on the condition number of the matrix that defines the linear system, in our case the sample covariance matrix. That means, that even if the relative residual norm of the solution is "very small", i.e. the computed solution appears to be very near to the actual solution, a "large" sample covariance matrix condition number implies that the computed solution might actually be very different to the actual solution.\footnote{The terms "very small" and "large" are, obviously, no mathematical terms. A mathematical definition depends on the problem set-up and the error tolerance that can be assumed according to the practical use of the solution. Here, we would like to focus on how changes in the condition number lead to portfolio instability, rather than on how a high or low condition number in absolute terms affects the use of the computed solution.}
-    		
-    		\begin{theorem}\label{theorem:ConditionNumberEigenvalue}
-    		    Let $A \in \mathbb{C}^{N \times N}$ be a non-singular symmetric matrix and $\lambda_1, \dots, \lambda_N$ its eigenvalues, then the condition number of $A$ with respect to the spectral norm is given by \todo[inline]{Liesen: Add source?}
-    		    \begin{align*}
-    		        \kappa_2(A) := \frac{\max_{i = \{1, \dots, N \} } | \lambda_i |}{\min_{i = \{1, \dots, N \} } | \lambda_i |}.
-    		    \end{align*}
-    		\end{theorem}
-    		
-    		\begin{proof}
-    		    If $A \in \mathbb{C}^{N \times N}$ is a non-singular symmetric matrix, then we know that $A$ can be unitarily diagonalised:
-    		    \begin{align*}
-    		        A = U \Lambda U^H,
-    		    \end{align*}
-    		    where $U \in \mathbb{C}^{N \times N}$ is an unitary matrix and $\Lambda := diag(\lambda_1, \dots, \lambda_N) \in \mathbb{C}^{N \times N}$ is a diagonal matrix that contains the eigenvalues of $A$ in the diagonal. Using the fact that the spectral norm is unitarily invariant, we get
-    		    \begin{align*}
-    		        \kappa_2(A) &= \| A \|_2 \| A^{-1} \|_2 \\
-    		        &= \| U \Lambda U^H \|_2 \| (U \Lambda U^H)^{-1} \|_2 \\
-    		        &= \| \Lambda \|_2 \| \Lambda^{-1} \|_2 \\
-    		        &= \max_{i = \{1, \dots, N \} } | \lambda_i | \frac{1}{\min_{i = \{1, \dots, N \} } | \lambda_i |} = \frac{\max_{i = \{1, \dots, N \} } | \lambda_i |}{\min_{i = \{1, \dots, N \} } | \lambda_i |}.
-    		    \end{align*}
-    		\end{proof}
-    		
-    		Using the decomposition of the covariance matrix from definition \ref{definition:CovarianceMatrix}
-    		\begin{align*}
-    		    \Sigma = S P S,
-    		\end{align*}
-    		where $S$ is the standard deviation matrix and $P$ the correlation matrix, and the result of theorem \ref{theorem:ConditionNumberEigenvalue}, we see that condition number of the covariance matrix is minimal for a fixed standard deviation matrix when the correlation matrix is a diagonal matrix, and for a fixed correlation matrix when the standard deviation of all assets' returns is equal. The first case follows from the fact that the diagonal entries of the correlation matrix are always equal to $1$, because all assets are perfectly correlated to themselves. A diagonal correlation matrix corresponds to a set of assets that are uncorrelated. As the relative difference in the standard deviation of the assets and their correlations rise, the condition number of the corresponding sample covariance matrix also rises. This tends to happen during periods of market stress, when investors fear the fall of asset prices across asset classes, sectors and countries. However, it is exactly during those periods of market stress when investors do need to make the most out of diversification to reduce the impact of price fall in their aggregated portfolio. This issue is what López de Prado calls \textit{Markowitz's curse} \cite{lopezmain}:
-    		
-    		\begin{displayquote}
-    		    "The more correlated the investments, the greater the need for diversification, and yet the more likely we will receive unstable solutions. The benefits of diversification often are more than offset by estimation errors."
-            \end{displayquote}
-            
-            Moreover, periods of market stress tend to start suddenly, and investors reactions are drastic, which in turn causes sudden sharp rises in the condition number of the covariance matrix. As a result, the covariance matrices used to compute the optimal portfolios at the last and first rebalancing point just before and just after the period of market stress respectively tend to be very different, potentially generating very different optimal allocations. This is one of the reasons why Markowitz's minimum volatility portfolios tend to be more unstable across time, generating higher transaction costs.
-    		
-    		In figure \ref{fig:LopezdePrado_Corr_Eig_Plot}, we can see the eigenvalues of different types of correlation matrices plotted from López de Prado's paper \cite{lopezmain}, in this case correlations matrices of size $50$. The ideal correlation matrix is the identity matrix, which has $\lambda = 1$ as unique eigenvalue and hence condition number equal to $1$. As we add correlated assets to our universe, the largest eigenvalue in modulo of the correlation matrix increases while the smallest eigenvalue in modulo decreases leading to an increase of its condition number.
-    		
-    		\begin{figure}[h!]
-    			\centering
-    			\includegraphics[width=1.15\textwidth]{bilder/LopezdePrado_Corr_Eig_Plot.png}
-    			\caption{Visualisation of Markowitz's Curse \cite{lopezmain}}
-    			\label{fig:LopezdePrado_Corr_Eig_Plot}
-    		\end{figure}
-    		
-    		To quantify how correlated assets are, we define the following distance measure for the distance between each of the computed correlation matrices corresponding to each sample covariance matrix of our practical implementation and the \textit{ideal} correlation matrix\footnote{We consider the identity matrix as the ideal correlation matrix because it maximises the stability of the optimisation method. Furthermore, of all possible correlation matrices, a set of perfectly uncorrelated assets used as input for Markowitz's portfolio optimisation method results in the portfolio with the lowest variance. For other purposes, a correlation matrix equal to the identity matrix might not be ideal.}, i.e. the identity matrix.
-    		
-    		\begin{definition}
-    		    Let $\Omega \in \mathbb{R}^{N \times N}$ be a correlation matrix as in definition \ref{definition:CovarianceMatrix}. We define the \textbf{distance of $\Omega$ to the ideal correlation matrix} as
-    		    \begin{align*}
-    		        \| \Omega - I_N \|_F,
-    		    \end{align*}
-    		    where $\| \cdot \|_F$ is the Frobenius norm and $I_N$ is the $N$-dimensional identity matrix. Obviously,
-    		    \begin{align*}
-    		        \| \Omega - I_N \|_F \geq 0
-    		    \end{align*}
-    		    holds for all correlation matrices $\Omega \in \mathbb{R}^{N \times N}$.
-    		\end{definition}
-    		
-    		The distance of a correlation matrix to the ideal correlation matrix that we have just defined is a measure of how much different assets are correlated (positively as well as negatively). The more correlated assets are, the higher the distance to the ideal correlation matrix, which corresponds to all assets being completely uncorrelated.
-    		
-    		Figure \ref{fig:Corr_dist_to_id} shows the change in the distance of the correlation matrices corresponding to the computed covariance matrices over the backtesting period. We can appreciate a steep rise in the distance coinciding with the start of the COVID-19 crisis, showing how strong the correlations between the assets in our universe rose. Correlations remained high until October, and later failed to get back down to the levels observed at the beginning of the backtesting period. In this figure, we can also observe that the rises can be very sudden and steep.
-    		
-    		\begin{figure}[h!]
-    		    \centering
-    		    \includegraphics[width=1.15\textwidth]{bilder/Corr_dist_to_id.png}
-    		    \caption{Correlation Matrix Distance to Ideal Correlation Matrix over the Backtesting Period}
-    		    \label{fig:Corr_dist_to_id}
-    		\end{figure}
-    		
-    		We quantify the condition number with respect to the spectral norm of the covariance matrices used for the computation of Markowitz minimum volatility portfolios in our practical implementation, as well as the ones of the correlation and variance matrices corresponding to those covariance matrices. The results are plotted in figure \ref{fig:Cov_corr_var_matrix_cond}. A clear sudden sharp rise in the condition number of the sample covariance matrix can be observed at the beginning of the COVID-19 crisis, when lock-downs and other measures that slowed down economies worldwide were enacted. This rise in the condition number of the sample covariance matrix was initially driven by a steep rise in correlations, as the condition number of the correlation matrix and figure \ref{fig:Corr_dist_to_id} show. However, as the variances of returns across the assets in our portfolio universe rose, they also got to similar levels, which in turn led to a sharp drop in the condition number of the variance, and hence also of the covariance, matrix. Economically speaking, as the COVID-19 crisis started, investors initially decided to liquidate their holdings across all assets classes, and increase their cash allocation. This led to a reduction in the relatively wide difference in returns' variance between more conservative asset classes, like fixed-income, and more aggressive asset classes, like equities and commodities, that prevails during normal times. In second half of the year, correlations remained high, and variances returned to more normal levels, leading to a new increase in the condition number of the sample covariance matrix to even higher levels than in the first half of the year, as the advantageous effects of higher, more similar variances across the assets disappeared.
-    		
-    		\begin{figure}[h!]
-    		    \centering
-    		    \includegraphics[width=1.15\textwidth]{bilder/Cov_corr_var_matrix_cond.png}
-    		    \caption{Condition Number of the Covariance and its Corresponding Correlation and Variance Matrices over the Backtesting Period}
-    		    \label{fig:Cov_corr_var_matrix_cond}
-    		\end{figure}
-    		
-    		The effects of the changes in the condition number of the sample covariance matrix can be observed in figure \ref{fig:nHHI_EWP_IVP_MMVP}, where the changes in concentration track the changes in the condition number of the sample covariance matrix, and in figure \ref{fig:Turnover_over_time_EWP_IVP_MMVP}, where the turnover of the MMVP is almost twice as high as the turnover of the IVP\footnote{The inverse variance portfolio (IVP) is actually Markowitz's minimum volatility portfolio (MMVP) computed using the ideal correlation matrix. See remark \ref{remark:IVPEquivalentToMMVP}.}.
-    		
-    		\begin{figure}[h!]
-    		    \centering
-    		    \includegraphics[width=1.15\textwidth]{bilder/Turnover_over_time_EWP_IVP_MMVP.png}
-    		    \caption{Turnover of EWP, IVP and MMVP over the Backtesting Period}
-    		    \label{fig:Turnover_over_time_EWP_IVP_MMVP}
-    		\end{figure}
-    	
-    	We conclude that even if the condition number of the covariance matrices used for the computation of Markowitz's minimum volatility portfolios in our practical implementation is relatively low to produce high residual-based forward error bounds, the stability of the portfolio allocation over time suffered from sudden sharp rises in correlations between assets, as well as from sudden sharp changes in the relative difference between the variance of returns of rather "safe" assets like fixed-income ETFs and "riskier" assets like equity ETFs. Another interesting finding is the fact that the stronger rise in returns' variance of "safer" assets, which exhibit lower variances in normal times, than that of "riskier" assets had a cushion effect, sinking the condition number of the covariance matrix at the start of the COVID-19 crisis and reducing portfolio turnover in the last half of the year. Finally, Markowitz's minimum volatility portfolios fail to perform better than the two naive portfolio allocation models defined above, producing higher portfolio turnover and even negative risk-adjusted returns.
+		\begin{figure}[p]
+		    \centering
+		    \includegraphics[width=1.15\textwidth]{bilder/Cov_corr_var_matrix_cond.png}
+		    \caption{Condition Number of the 20 Assets Covariance and its Corresponding Correlation and Variance Matrices at Each of the 12 Rebalancing Points in the Backtesting Period from 01/01/2020 to 31/12/2020.}
+		    \label{fig:Cov_corr_var_matrix_cond}
+		\end{figure}
+		
+		The effects of the changes in the condition number of the sample covariance matrix can be observed in figure \ref{fig:nHHI_EWP_IVP_MMVP}, where the changes in concentration track the changes in the condition number of the sample covariance matrix, and in figure \ref{fig:Turnover_over_time_EWP_IVP_MMVP}, where the turnover of the MMVP is almost twice as high as the turnover of the IVP\footnote{The inverse variance portfolio (IVP) is actually Markowitz's minimum volatility portfolio (MMVP) computed using the ideal correlation matrix. See remark \ref{remark:IVPEquivalentToMMVP}.}.
+		
+		\begin{figure}[p]
+		    \centering
+		    \includegraphics[width=1.15\textwidth]{bilder/Turnover_over_time_EWP_IVP_MMVP.png}
+		    \caption{Turnover of the Equal Weight, Inverse Variance and Markowitz Minimum Volatility Portfolios at Each of the 12 Rebalancing Points in the Backtesting Period from 01/01/2020 to 31/12/2020.}
+		    \label{fig:Turnover_over_time_EWP_IVP_MMVP}
+		\end{figure}
+		
+		We conclude that even though the condition number of the covariance matrices used for the computation of Markowitz's minimum volatility portfolios in our practical implementation is relatively low to produce high residual-based forward error bounds, the stability of the portfolio allocation over time suffered from sudden sharp rises in correlations between assets, as well as from sudden sharp changes in the relative difference between the variance of returns of rather \textit{safe} assets like fixed-income ETFs and "riskier" assets like equity ETFs. The low condition numbers might also be partly explained by the fact that our set of investable assets is so small, as we have shown in the simulations at the end of section \ref{section:MarkowitzsCurse}. Another interesting finding is the fact that the stronger rise in returns' variance of "safer" assets, which exhibit lower variances in normal times, than that of "riskier" assets had a cushion effect, sinking the condition number of the covariance matrix at the start of the COVID-19 crisis and reducing portfolio turnover in the last half of the year. Finally, Markowitz's minimum volatility portfolios fail to perform better than the two naive portfolio allocation models defined above, producing higher portfolio turnover and even negative risk-adjusted returns.

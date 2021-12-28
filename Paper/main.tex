@@ -1,4 +1,5 @@
-\documentclass[a4paper,11pt,abstracton,twoside,titlepage,openany,nochapterprefix,noappendixprefix,liststotoc,bibtotoc,normalheadings,pointlessnumbers,BCOR1cm]{article}
+%\documentclass[a4paper,11pt,abstracton,twoside,titlepage,openany,nochapterprefix,noappendixprefix,liststotoc,bibtotoc,normalheadings,pointlessnumbers,BCOR1cm]{article}
+\documentclass[a4paper,11pt,abstracton,oneside,titlepage,openany,nochapterprefix,noappendixprefix,liststotoc,bibtotoc,normalheadings,pointlessnumbers,BCOR1cm]{article}
 
 \usepackage{graphicx}
 %\usepackage[english]{babel}
@@ -26,6 +27,7 @@
 \usepackage[toc,page]{appendix}
 \usepackage[autostyle]{csquotes}
 \usepackage{tabularx}
+\usepackage{multirow}
 % For vector of ones with mathbb style.
 \usepackage{dsfont}
 % For algorithms
@@ -124,7 +126,7 @@
 \mbox{}
 \newpage
 
-\oddsidemargin 0.5in
+\oddsidemargin 0in%.5in
 \evensidemargin 0in
 
 \vspace*{40em}
@@ -155,13 +157,13 @@ Berlin, den \today
 \textwidth 13cm
 
 % Uncomment before hand out.
-%\mbox{}
-%\newpage
-%
-%\mbox{}
-%\section*{Acknowledgements}
-%\input{section/Acknowledgments}
-%\newpage
+\mbox{}
+\newpage
+
+\mbox{}
+\section*{Acknowledgements}
+\input{section/Acknowledgments}
+\newpage
 
 \mbox{}
 \newpage
@@ -233,10 +235,6 @@ Berlin, den \today
     
     \section{Hierarchical Risk Parity Portfolios}\label{appendix:HRPPortfolios}
     \input{section/HRP_Portfolios}
-    \newpage
-    
-    \section{K-Means Algorithm}\label{appendix:kMeansAlgorithm}
-    \input{section/K_Means_Algorithm}
     \newpage
     
 \end{appendices}

@@ -66,7 +66,7 @@ To show the problems of Markowitz's minimum volatility portfolios in real applic
     \begin{figure}[h!]
         \centering
         \includegraphics[width=1.15\textwidth]{bilder/Equity_ETP_1USD_Return_1.png}
-        \caption{Equity ETPs' returns on a 1 U.S. dollar investment from end 2019 until end 2020}
+        \caption{Equity ETPs' Returns on a 1 U.S. Dollar Investment from End 2019 until End 2020.}
         \label{fig:equity_etp_1usd_return_1}
     \end{figure}
     
@@ -76,7 +76,7 @@ To show the problems of Markowitz's minimum volatility portfolios in real applic
     \begin{figure}[h!]
         \centering
         \includegraphics[width=1.15\textwidth]{bilder/Equity_ETP_1USD_Return_2.png}
-        \caption{Equity ETPs' returns on a 1 U.S. dollar investment from end 2019 until end 2020}
+        \caption{Equity ETPs' Returns on a 1 U.S. Dollar Investment from End 2019 until End 2020.}
         \label{fig:equity_etp_1usd_return_2}
     \end{figure}
     
@@ -86,7 +86,7 @@ To show the problems of Markowitz's minimum volatility portfolios in real applic
     \begin{figure}[h!]
         \centering
         \includegraphics[width=1.15\textwidth]{bilder/RE_ETP_1USD_Return.png}
-        \caption{Real Estate ETP returns on a 1 U.S. dollar investment from end 2019 until end 2020}
+        \caption{Real Estate ETP Returns on a 1 U.S. Dollar Investment from End 2019 until End 2020.}
         \label{fig:re_etp_1usd_return}
     \end{figure}
     
@@ -96,7 +96,7 @@ To show the problems of Markowitz's minimum volatility portfolios in real applic
     \begin{figure}[h!]
         \centering
         \includegraphics[width=1.15\textwidth]{bilder/FI_ETP_1USD_Return.png}
-        \caption{Fixed Income ETPs' returns on a 1 U.S. dollar investment from end 2019 until end 2020}
+        \caption{Fixed Income ETPs' Returns on a 1 U.S. Dollar Investment from End 2019 until End 2020.}
         \label{fig:fi_etp_1usd_return}
     \end{figure}
     
@@ -106,18 +106,6 @@ To show the problems of Markowitz's minimum volatility portfolios in real applic
     \begin{figure}[h!]
         \centering
         \includegraphics[width=1.15\textwidth]{bilder/Commodity_ETP_1USD_Return.png}
-        \caption{Commodity ETPs' returns on a 1 U.S. dollar investment from end 2019 until end 2020}
+        \caption{Commodity ETPs' Returns on a 1 U.S. Dollar Investment from End 2019 until End 2020.}
         \label{fig:commodity_etp_1usd_return}
     \end{figure}
-
-\subsection{Backtest Settings}\label{backtestsettingssec}
-    In total, 12 portfolios are computed, corresponding to a backtesting period from January 1, 2020 to December 31, 2020 and monthly rebalancing-interval. The rebalancing occurs on the first trading day of each month at 10:00 AM New York time. An initial account balance of 10 million U.S. dollars is assumed, and margin calls are deactivated in order to better simulate the theoretical portfolios computed.
-    
-    For the computation of portfolio weights, the daily returns of the past 60 days is used as input. This last setting does not affect the equal weight portfolio construction method, because this naive method does not use any past data as input. The reason why we use 60 days of past data is because we need at least 20 periods of data to fulfil a necessary condition for the invertibility of the sample covariance matrix, and 60 days corresponds to 3 full trading months of data.
-    
-    In our practical implementation framework, we have selected $N = 20$ assets, therefore $T \geq 20$ must hold. This does however not guarantee that the covariance matrix has full rank and hence is invertible, because the condition $N \leq T$ is not a sufficient condition for that.
-	
-	There is not a single true underlying covariance matrix, but rather one that changes over time according to human behaviour and psychology, else every investor could compute optimal portfolios that would remain optimal over time. Therefore, it is worth to mention the trade-off between higher values of $T$, which lead to a more stable, with higher probability non-singular sample covariance matrix over time but at the same time make the portfolio optimisation less sensitive to changes in market trends and regimes, and lower values of $T$, which make the covariance matrix estimation process more sensitive to changes in market trends and regimes but make the portfolio optimisation process less stable. The asset manager should always take this into account, in order to reduce noise in the estimation while still using input parameters that allow to react to changes in the market. In the case of our practical implementation framework, we could, of course, have chosen a different value of $T$, and there is no mathematical reason to prefer $T=60$ to $T=59$ or $T=100$, for example. However, optimising the covariance matrix estimation process with respect to the number of observations used for its computation is not part of this work, and a 3-month past-data-window seems acceptable for the estimation of portfolios with a holding period of one month (optimal portfolios are computed and rebalanced each month).
-    
-\subsection{Benchmark Portfolio Construction Methods}
-    We use 2 naive portfolio allocation models, equal weight and inverse variance allocation, as benchmarks for the other 3 methods (Markowitz minimum volatility portfolio, Markowitz minimum volatility portfolio with covariance matrix shrinking and hierarchical risk parity) to estimate if the the increased complexity of the latter can be justified in form of better risk-adjusted returns, concentration and stability.
